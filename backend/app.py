@@ -17,7 +17,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     set_access_cookies,
     unset_jwt_cookies,
-    get_jwt
+    get_jwt,
 )
 
 # add in implementation for token refresh later on
@@ -38,6 +38,7 @@ def get_db_connection():
     conn = sqlite3.connect("../database/tessera.db")
     conn.row_factory = sqlite3.Row
     return conn
+
 
 # Continue to edit as more filters are being added in the frontend
 # Returns the events fitting the filters provided
@@ -84,6 +85,7 @@ def get_events():
 
     return jsonify(events_list)
 
+
 # Returns all the users (for Admin)
 @app.route("/user", methods=["GET"])
 def get_users():
@@ -101,6 +103,7 @@ def get_users():
 
     return jsonify(users_list)  # Return the list of events as JSON
 
+
 # Add new users
 @app.route("/user", methods=["PUT"])
 def create_user():
@@ -113,16 +116,21 @@ def create_user():
     avatar_url = request.json.get("avatar_url")
 
     # Basic validation to ensure all fields are provided
-    if not first_name or not last_name or not username or not email or not password or not avatar_url:
-        return jsonify(
-            {"error": "All fields are required."}
-        ), 400
+    if (
+        not first_name
+        or not last_name
+        or not username
+        or not email
+        or not password
+        or not avatar_url
+    ):
+        return jsonify({"error": "All fields are required."}), 400
 
     # Hash the password
     hashed_password = generate_password_hash(password)
 
     try:
-        conn = get_db_connection() # Establish database connection
+        conn = get_db_connection()  # Establish database connection
         cursor = conn.cursor()
 
         # Attempt to insert the new user into the Users table
@@ -145,6 +153,7 @@ def create_user():
         return jsonify({"error": "Username or email already exists."}), 409
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 # Returns cookie for valid users
 @app.route("/login", methods=["POST"])
@@ -178,11 +187,12 @@ def login_user():
             return jsonify({"error": "Password is invalid"}), 401
 
         identifiers_dict = {
-            "first_name" : user_info["first_name"],
-            "last_name" : user_info["last_name"],
+            "user_id": user_info["user_id"],
+            "first_name": user_info["first_name"],
+            "last_name": user_info["last_name"],
             "username": user_info["username"],
             "email": user_info["email"],
-            "avatar_url" : user_info["avatar_url"],
+            "avatar_url": user_info["avatar_url"],
             "authType": "USER",
         }
         conn.close()
@@ -198,6 +208,7 @@ def login_user():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 # Removes cookie to log out of account
 @app.route("/logout", methods=["POST"])
 def logout():
@@ -206,12 +217,31 @@ def logout():
     # set_access_cookies(resp, '')
     return resp, 200
 
-# @app.route("/profile", method={"GET"})
-# @jwt_required()
-# def get_user():
-#     jwt = get_jwt()
-#     username = jwt["username"]
-#     email = jwt["email"]
+
+# Retrieve information about user from cookie to create profile information
+@app.route("/profile", methods=["GET"])
+@jwt_required()
+def get_user_profile():
+    jwt = get_jwt()
+    user_id = jwt["sub"]["user_id"]
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Users WHERE user_id=?", (user_id,))
+
+        details = cursor.fetchall()
+        if details is None:
+            return jsonify({"error": "User not found"}), 404
+
+        acc_info_list = [dict(detail) for detail in details]
+        conn.close()
+        return jsonify(acc_info_list), 200
+        # return jsonify(jwt), 200
+    except sqlite3.Error:
+        return jsonify({"error": "Databae error"}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 # create forget password thing (update password)
 # generate code for recovery, maybe edit the change password code to accomdate
@@ -240,80 +270,51 @@ def logout():
 
 
 # Allow users to change their password
-@app.route("/change/password", methods=["PUT"])
-def change_password():
-    # Extract username, current_password, new_password, and verify_new_password from the JSON payload
-    username = request.json.get("username")
+@app.route("/user/change_password/<user_id>", methods=["PUT"])
+@jwt_required()
+def change_password(user_id):
+    # Extract current_password, new_password from the JSON payload
     current_password = request.json.get("current_password")
     new_password = request.json.get("new_password")
-    verify_new_password = request.json.get("verify_new_password")
 
     # Basic validation to ensure all fields are provided
-    if (
-        not username
-        or not current_password
-        or not new_password
-        or not verify_new_password
-    ):
+    if (not current_password or not new_password):
         return jsonify({"error": "All fields are required."}), 400
 
     try:
         conn = get_db_connection()  # Establish database connection
         cursor = conn.cursor()
-
-        # Attempt to find the user in the Users table
-        cursor.execute("SELECT username FROM Users WHERE username = ?", (username,))
-        # Return error message if no user of the provided username is found
-        if cursor.fetchone() is None:
-            conn.close()
-            return jsonify(
-                {"error": "Invalid Credentials (username and/or current password)"}
-            ), 403
-
-        # Attempt to retrieve password_hasxh currently associated with the username from Users table
-        cursor.execute(
-            "SELECT password_hash FROM Users WHERE username = ?", (username,)
-        )
+        
+        # Retrieve password_hash currently associated with the username from Users table
+        cursor.execute("SELECT password_hash FROM Users WHERE user_id = ?", (user_id,))
         hashed = cursor.fetchone()
 
         # Basic validation to ensure that the current_password provided matches password_hash and that new password is correct
-        if check_password_hash(hashed["password_hash"], new_password):
+        if (check_password_hash(hashed["password_hash"], current_password) is False):
             conn.close()
-            #!!!!! to maintain a list of past passwords should you add a new column in user table? a list?
-            return jsonify(
-                {
-                    "error": "You used this password recently. Please choose a different one."
-                }
-            ), 406
-        elif (
-            check_password_hash(hashed["password_hash"], current_password) is False
-            or hashed["password_hash"] is None
-        ):
+            return jsonify({"error":"Invalid Credentials"}), 403
+        elif check_password_hash(hashed["password_hash"], new_password):
             conn.close()
-            return jsonify(
-                {"error": "Invalid Credentials (username and/or current password)"}
-            ), 403
-        elif new_password != verify_new_password:
-            conn.close()
-            return jsonify({"error": "Passwords do not match"}), 400
+            return jsonify({"error": "You used this password recently. Please choose a different one."}), 406
         else:
-            message = validate_password(new_password)
-            if message == "valid":
+            # message = validate_password(new_password)
+            # if message == "valid":
                 cursor.execute(
-                    "UPDATE Users SET password_hash = ? WHERE username = ?",
+                    "UPDATE Users SET password_hash = ? WHERE user_id = ?",
                     (
                         generate_password_hash(new_password),
-                        username,
+                        user_id,
                     ),
                 )
                 conn.commit()
                 conn.close()
                 return jsonify({"message": "Password changed successfully"}), 200
-            else:
-                conn.close()
-                return jsonify({"error": message})
-    except sqlite3.IntegrityError:
-        return jsonify({"error": "Invalid Credentials"}), 401
+            # else:
+            #     conn.close()
+            #     return jsonify({"error": message})
+        # elif new_password != verify_new_password:
+        #     conn.close()
+        #     return jsonify({"error": "Passwords do not match"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -336,39 +337,37 @@ def validate_password(password):
 
 # Allow users to change the username and/or email
 # check if the username/email they provided is already being used by someone else in the User table
-@app.route("/change/username_email", methods=["PUT"])
-def change_username_email():
-    username = request.json.get("username")
+@app.route("/user/update/<user_id>", methods=["PUT"])
+def change_username_email(user_id):
     new_username = request.json.get("new_username")
     new_email = request.json.get("new_email")
 
-    if (username and new_username) or (username and new_email):
+    if new_username or new_email:
         try:
             conn = get_db_connection()  # Establish database connection
             cursor = conn.cursor()
 
-            cursor.execute("SELECT * from Users WHERE username = ?", (username,))
-            if cursor.fetchone() is None:
-                return jsonify({"error": "User does not exist"}), 404
-
-            cursor.execute("SELECT * from Users WHERE username = ?", (new_username))
-            if cursor.fetchone():
-                return jsonify(
-                    {
-                        "error": "A user with this username already exists. Use a different name."
-                    }
+            if new_username:
+                cursor.execute(
+                    "SELECT * from Users WHERE username = ?", (new_username,)
                 )
-            cursor.execute("SELECT * from Users WHERE email = ?", (new_email))
-            if cursor.fetchone():
-                return jsonify(
-                    {
-                        "error": "The email address is already used. Use a different email"
-                    }
-                )
+                if cursor.fetchone():
+                    return jsonify(
+                        {
+                            "error": "A user with this username already exists. Use a different name."
+                        }
+                    ), 400
+            if new_email:
+                cursor.execute("SELECT * from Users WHERE email = ?", (new_email,))
+                if cursor.fetchone():
+                    return jsonify(
+                        {
+                            "error": "The email address is already used. Use a different email"
+                        }
+                    ), 400
 
-            query = "UPDATE Users SET "
-            params = []
             query_conditions = []
+            params = []
 
             if new_username:
                 query_conditions.append("username = ?")
@@ -376,8 +375,9 @@ def change_username_email():
             if new_email:
                 query_conditions.append("email = ?")
                 params.append(new_email)
-            query += ", ".join(query_conditions) + " WHERE username = ?"
-            params.append(username)
+
+            params.append(user_id)
+            query = f"UPDATE users SET {','.join(query_conditions)} WHERE user_id = ?"
 
             cursor.execute(query, params)
             conn.commit()
@@ -581,7 +581,7 @@ def get_event(event_id):
         current_user = get_jwt_identity()
         if not current_user:
             return jsonify({"error": "Unauthorized"}), 401
-        
+
         conn = get_db_connection()
         cursor = conn.cursor()
 
@@ -595,8 +595,34 @@ def get_event(event_id):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
 
+
+# @app.route("/inventory/prices", methods={"POST"})
+# def create_prices():
+#     pricecode = request.json.get("pricecode")
+#     event_id = request.json.get("event_id")
+#     value = request.json.get("value")
+    
+#     if (not pricecode or not event_id or not value):
+#         return jsonify(
+#             {
+#                 "error": "All fields are required."
+#             }
+#         ), 400
+            
+#     try:
+#         conn = get_db_connection()
+#         cursor = conn.cursor()
+#         cursor.execute("INSERT INTO Prices(pricecode, event_id, value) VALUES (?,?,?)", (pricecode, event_id, value,),)
+#         conn.commit()
+#         cursor.execute("SELECT price_id FROM Prices WHERE event_id = ? AND pricecode = ?",(event_id, pricecode,),)
+#         price_id=cursor.fetchone()
+#         conn.close()
+#         return jsonify({"message": "Pricecode successfully created", "price_id" : price_id["price_id"]})
+        
+#     except Exception as e:
+#         return jsonify({"error" : str(e)}), 500
+    
 # admin portal to add events
 if __name__ == "__main__":
     app.run(debug=True)
