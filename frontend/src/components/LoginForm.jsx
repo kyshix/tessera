@@ -1,5 +1,9 @@
 import React, { useState } from 'react'
-import { chakra, Link as ChakraLink, Divider, Alert, AlertIcon, Box, Image, Text, VStack, Heading, LinkBox, Button, FormControl, InputGroup, Input, InputLeftElement, InputRightElement } from '@chakra-ui/react';
+import {
+    chakra, Link as ChakraLink, Divider, Alert, AlertIcon, Box, Text,
+    VStack, Heading, LinkBox, Button, FormControl, InputGroup, Input,
+    InputLeftElement, InputRightElement
+} from '@chakra-ui/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaUserAlt } from 'react-icons/fa';
 import { ViewIcon, LockIcon } from '@chakra-ui/icons'
@@ -22,16 +26,15 @@ function LoginForm() {
             },
             body: JSON.stringify({ username, password })
         })
-        .then(response => {
-            if (response.ok) {
-                navigate('/profile')
-                // setIsInvalid(false)
-            } else {
-                setIsInvalid(true)
-            }
-        })
-        .catch(error => console.error(('Error logging in:', error)), []);
-    }
+            .then(response => {
+                if (response.ok) {
+                    navigate('/profile');
+                } else {
+                    setIsInvalid(true);
+                }
+            })
+            .catch(error => console.error(('Error logging in:', error)), []);
+    };
 
     return (
         <LinkBox
@@ -45,13 +48,21 @@ function LoginForm() {
             backdropFilter='blur(10px)'>
             <form>
                 <VStack width='95%'>
-                    <Heading paddingTop="55px">Login</Heading>
+                    <Heading paddingTop="55px">
+                        Login
+                    </Heading>
                     <VStack
                         p="1em"
                         width='90%'
                         alignContent="center"
                         justifyContent="center">
-                        {(isInvalid) ? <Alert status='error'> <AlertIcon alignContent="center" justifyContent="center" />Invalid Credentials</Alert> : null}
+                        {(isInvalid) ?
+                            <Alert status='error'>
+                                <AlertIcon alignContent="center" justifyContent="center" />
+                                Invalid Credentials
+                            </Alert>
+                            : null
+                        }
                         <FormControl>
                             <InputGroup>
                                 <InputLeftElement
@@ -60,15 +71,12 @@ function LoginForm() {
                                     height='100%'
                                     display="flex"
                                     alignItems="center"
-                                    children={<FaUserAlt />}
-                                />
+                                    children={<FaUserAlt />}/>
                                 <Input
                                     size="lg"
                                     type="username"
                                     placeholder="username"
-                                    // _placeholder={{color: "red.500"}}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                />
+                                    onChange={(e) => setUsername(e.target.value)}/>
                             </InputGroup>
                         </FormControl>
                         <InputGroup>
@@ -76,30 +84,35 @@ function LoginForm() {
                                 pointerEvents="none"
                                 height='100%' display="flex"
                                 alignItems="center"
-                                children={<LockIcon />}
-                            />
+                                children={<LockIcon />}/>
                             <Input
                                 size="lg"
                                 type={showPassword ? "text" : "password"}
                                 placeholder="password"
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
+                                onChange={(e) => setPassword(e.target.value)}/>
                             <InputRightElement
                                 height='100%'
                                 display="flex"
                                 alignItems="center"
-                                children={<ViewIcon onClick={handleShowClick}>{showPassword ? "Hide" : "Show"}</ViewIcon>}
-                            />
+                                children={
+                                    <ViewIcon onClick={handleShowClick}>
+                                        {showPassword ? "Hide" : "Show"}
+                                    </ViewIcon>}/>
                         </InputGroup>
                         <Box width="100%" textAlign="right">
                             <Text fontSize="sm">Forgot Password?</Text>
                         </Box>
-                        <Button onClick={fetchPostLogin} width='100%'>Login</Button>
+                        <Button width='100%' onClick={fetchPostLogin} >Login</Button>
                     </VStack>
-
                     <Divider width='80%' />
                     <Text paddingTop="20px" paddingBottom="55px">
-                        New User? <ChakraLink as={Link} to="/signup" color="yellow.500" fontWeight="bold">Signup</ChakraLink>
+                        New User? <ChakraLink 
+                            color="yellow.500" 
+                            fontWeight="bold" 
+                            as={Link} 
+                            to="/signup">
+                                Signup
+                        </ChakraLink>
                     </Text>
                 </VStack>
             </form>

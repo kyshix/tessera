@@ -1,0 +1,99 @@
+import React, { useState, useEffect } from 'react';
+import TesseraSeatPicker from 'tessera-seat-picker';
+
+const Rows = [
+  [
+    { id: 1, number: 1, tooltip: "$30" },
+    { id: 2, number: 2, tooltip: "$30" },
+    { id: 3, number: 3, isReserved: true, tooltip: "$30" },
+    null,
+    { id: 4, number: 4, tooltip: "$30" },
+    { id: 5, number: 5, tooltip: "$30" },
+    { id: 6, number: 6, tooltip: "$30" }
+  ],
+  [
+    { id: 7, number: 1, isReserved: true, tooltip: "$20" },
+    { id: 8, number: 2, isReserved: true, tooltip: "$20" },
+    { id: 9, number: 3, isReserved: true, tooltip: "$20" },
+    null,
+    { id: 10, number: 4, tooltip: "$20" },
+    { id: 11, number: 5, tooltip: "$20" },
+    { id: 12, number: 6, tooltip: "$20" }
+  ]
+];
+
+function EventDetailPage({event_id}) {
+  const [tickets, setTickets] = useState([]);
+  useEffect(() => {
+    fetch(`http://localhost:5000/inventory/prices/${event_id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+    )
+      .then(response => response.json())
+      .then(setTickets)
+      .catch(error => console.error('Error fetching event details:', error));
+  }, [event_id]);
+  console.log(tickets)
+
+
+
+
+  const [selected, setSelected] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const addSeatCallback = async ({ row, number, id }, addCb) => {
+    setLoading(true);
+
+    try {
+      // Your custom logic to reserve the seat goes here...
+
+      // Assuming everything went well...
+      setSelected((prevItems) => [...prevItems, id]);
+      const updateTooltipValue = 'Added to cart';
+
+      // Important to call this function if the seat was successfully selected - it helps update the screen
+      addCb(row, number, id, updateTooltipValue);
+    } catch (error) {
+      // Handle any errors here
+      console.error('Error adding seat:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeSeatCallback = async ({ row, number, id }, removeCb) => {
+    setLoading(true);
+
+    try {
+      // Your custom logic to remove the seat goes here...
+
+      setSelected((list) => list.filter((item) => item !== id));
+      removeCb(row, number);
+    } catch (error) {
+      // Handle any errors here
+      console.error('Error removing seat:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    //.. A bunch of other stuff...
+    <div>
+      <TesseraSeatPicker
+        addSeatCallback={addSeatCallback}
+        removeSeatCallback={removeSeatCallback}
+        rows={Rows}
+        maxReservableSeats={3}
+        alpha
+        visible
+        loading={loading}
+      />
+    </div>
+  );
+}
+
+export default EventDetailPage;

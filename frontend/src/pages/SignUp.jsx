@@ -16,8 +16,11 @@ function Signup() {
             >
                 <GridItem rowSpan={1} colSpan={8} />
                 <GridItem rowSpan={6} colSpan={1} />
-                {/* how do i incorporate/implement dark and light mode to these/ throughout my whole site */}
-                <GridItem rowSpan={6} colSpan={6} alignContent="center" justifyContent="center" >
+                <GridItem 
+                    rowSpan={6} 
+                    colSpan={6} 
+                    alignContent="center" 
+                    justifyContent="center" >
                     <Box align="center" >
                         <SignUpForm/>
                     </Box>
