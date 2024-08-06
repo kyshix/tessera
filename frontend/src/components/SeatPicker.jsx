@@ -25,6 +25,8 @@ const Rows = [
 function SeatPicker({ event_id }) {
   const [allSeats, setAllSeats] = useState([]);
   const [rowsMap, setRowsMap] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(`http://localhost:5000/inventory/prices/${event_id}`, {
@@ -40,10 +42,10 @@ function SeatPicker({ event_id }) {
   }, [event_id]);
 
   useEffect(() => {
-    debugger
+    // debugger
     setRowsMap(Object.values(allSeats.reduce((acc, cur) => {
       const rowId = cur.row_name;
-      const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE' ? false : true)};
+      const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE' ? false : true), tooltip: String('$' + cur.value)};
       if (!acc[rowId]) {
         acc[rowId] = [seatInfo];
       } else {
@@ -52,24 +54,9 @@ function SeatPicker({ event_id }) {
       return acc;
     }, {})));
 
-    
     setLoading(false);
   }, [allSeats]);
   console.log(rowsMap)
-
-  // const rows = allSeats.reduce((acc, cur) => {
-  //   const rowId = cur.row_name;
-  //   const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE'? false : true), tooltip: cur.value};
-  //   if (!acc[rowId]) {
-  //     acc[rowId] = [seatInfo];
-  //   } else {
-  //     acc[rowId].push(seatInfo);
-  //   }
-  //   return acc;
-  // }, {});
-
-  const [selected, setSelected] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const addSeatCallback = async ({ row, number, id }, addCb) => {
     setLoading(true);
