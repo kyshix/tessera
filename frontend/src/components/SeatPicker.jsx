@@ -23,7 +23,9 @@ const Rows = [
 ];
 
 function SeatPicker({ event_id }) {
-  const [allSeats, setAllSeats] = useState([])
+  const [allSeats, setAllSeats] = useState([]);
+  const [rowsMap, setRowsMap] = useState([]);
+
   useEffect(() => {
     fetch(`http://localhost:5000/inventory/prices/${event_id}`, {
       method: 'GET',
@@ -35,7 +37,32 @@ function SeatPicker({ event_id }) {
       .then(response => response.json())
       .then(data => setAllSeats(data))
       .catch(error => console.error('Error fetching event details:', error));
-  }, []);
+  }, [event_id]);
+
+  useEffect(() => {
+    setRowsMap(Object.values(allSeats.reduce((acc, cur) => {
+      const rowId = cur.row_name;
+      const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE' ? false : true), tooltip: cur.value };
+      if (!acc[rowId]) {
+        acc[rowId] = [seatInfo];
+      } else {
+        acc[rowId].push(seatInfo);
+      }
+      return acc;
+    }, {})));
+  }, [allSeats]);
+  console.log(rowsMap)
+
+  // const rows = allSeats.reduce((acc, cur) => {
+  //   const rowId = cur.row_name;
+  //   const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE'? false : true), tooltip: cur.value};
+  //   if (!acc[rowId]) {
+  //     acc[rowId] = [seatInfo];
+  //   } else {
+  //     acc[rowId].push(seatInfo);
+  //   }
+  //   return acc;
+  // }, {});
 
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -76,25 +103,13 @@ function SeatPicker({ event_id }) {
     }
   };
 
-  const rows = allSeats.reduce((acc, cur) => {
-    const rowId = cur.row_name;
-    const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE'? false : true), tooltip: cur.value};
-    if (!acc[rowId]) {
-      acc[rowId] = [seatInfo];
-    } else {
-      acc[rowId].push(seatInfo);
-    }
-    return acc;
-  }, {});
-  console.log(Object.values(rows));
-
   return (
     //.. A bunch of other stuff...
     <div>
       <TesseraSeatPicker
         addSeatCallback={addSeatCallback}
         removeSeatCallback={removeSeatCallback}
-        rows={Rows}
+        rows={rowsMap}
         maxReservableSeats={3}
         alpha
         visible

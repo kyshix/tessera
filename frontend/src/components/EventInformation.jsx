@@ -14,6 +14,7 @@ function EventInformation({ id }) {
     return (
         <div >
             <VStack align="stretch">
+                
                 {event.image_url && (
                     <Image src={event.image_url} alt={`Image for ${event.name}`} objectFit="cover" boxSize='600px' width="full" />
                 )}
