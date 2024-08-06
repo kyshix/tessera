@@ -40,9 +40,10 @@ function SeatPicker({ event_id }) {
   }, [event_id]);
 
   useEffect(() => {
+    debugger
     setRowsMap(Object.values(allSeats.reduce((acc, cur) => {
       const rowId = cur.row_name;
-      const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE' ? false : true), tooltip: cur.value };
+      const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE' ? false : true)};
       if (!acc[rowId]) {
         acc[rowId] = [seatInfo];
       } else {
@@ -50,6 +51,9 @@ function SeatPicker({ event_id }) {
       }
       return acc;
     }, {})));
+
+    
+    setLoading(false);
   }, [allSeats]);
   console.log(rowsMap)
 
@@ -65,7 +69,7 @@ function SeatPicker({ event_id }) {
   // }, {});
 
   const [selected, setSelected] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const addSeatCallback = async ({ row, number, id }, addCb) => {
     setLoading(true);
