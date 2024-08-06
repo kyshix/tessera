@@ -19,12 +19,12 @@ function EventInformation({ id }) {
                 )}
             </VStack>
             <SeatPicker event_id={id} />
-            <Box pos="relative" boxSize="400px">
+            {/* <Box pos="relative" boxSize="400px">
                 <Image src="https://bit.ly/2Z4KKcF" boxSize="full" />
                 <Text pos="absolute" top="50%" left="50%" color="red" transform="translate(-50%,-50%)">
                     This text is centered on the image
                 </Text>
-            </Box>
+            </Box> */}
         </div>
     );
 }

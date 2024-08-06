@@ -5,7 +5,7 @@ const Rows = [
   [
     { id: 1, number: 1, tooltip: "$30" },
     { id: 2, number: 2, tooltip: "$30" },
-    { id: 3, number: 3, isReserved: true, tooltip: "$30" },
+    { id: 3, number: 3, isReserved: false, tooltip: "$30" },
     null,
     { id: 4, number: 4, tooltip: "$30" },
     { id: 5, number: 5, tooltip: "$30" },
@@ -22,8 +22,8 @@ const Rows = [
   ]
 ];
 
-function EventDetailPage({event_id}) {
-  const [tickets, setTickets] = useState([]);
+function SeatPicker({ event_id }) {
+  const [allSeats, setAllSeats] = useState([])
   useEffect(() => {
     fetch(`http://localhost:5000/inventory/prices/${event_id}`, {
       method: 'GET',
@@ -33,13 +33,9 @@ function EventDetailPage({event_id}) {
     }
     )
       .then(response => response.json())
-      .then(setTickets)
+      .then(data => setAllSeats(data))
       .catch(error => console.error('Error fetching event details:', error));
-  }, [event_id]);
-  console.log(tickets)
-
-
-
+  }, []);
 
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -80,6 +76,18 @@ function EventDetailPage({event_id}) {
     }
   };
 
+  const rows = allSeats.reduce((acc, cur) => {
+    const rowId = cur.row_name;
+    const seatInfo = { id: rowId + cur.seat_number, number: cur.seat_number, isReserved: (cur.status == 'AVAILABLE'? false : true), tooltip: cur.value};
+    if (!acc[rowId]) {
+      acc[rowId] = [seatInfo];
+    } else {
+      acc[rowId].push(seatInfo);
+    }
+    return acc;
+  }, {});
+  console.log(Object.values(rows));
+
   return (
     //.. A bunch of other stuff...
     <div>
@@ -96,4 +104,4 @@ function EventDetailPage({event_id}) {
   );
 }
 
-export default EventDetailPage;
+export default SeatPicker;
