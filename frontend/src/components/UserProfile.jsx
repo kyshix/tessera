@@ -8,10 +8,9 @@ function UserProfile() {
     useEffect(() => {
         fetch(`http://localhost:5000/profile`, { credentials: 'include' })
             .then(response => response.json())
-            .then(data => setUser(data))
+            .then(data => setUser(data[0]))
             .catch(error => console.error('Error fetching user information:', error));
     }, []);
-    const userInfo = user[0];
 
     return (
         <Card>
@@ -22,16 +21,16 @@ function UserProfile() {
             </CardHeader>
             <CardBody>
                 <VStack p="1em">
-                    <Avatar size="2xl" src={userInfo.avatar_url} />
-                    <Text as='b' fontSize="2xl" >{userInfo.first_name} {userInfo.last_name}</Text>
-                    <Text>{userInfo.username}</Text>
+                    <Avatar size="2xl" src={user.avatar_url} />
+                    <Text as='b' fontSize="2xl" >{user.first_name} {user.last_name}</Text>
+                    <Text>{user.username}</Text>
                     <Divider></Divider>
                     <TableContainer>
                         <Table size="sm">
                             <Tbody>
                                 <Tr>
                                     <Td>Email</Td>
-                                    <Td>{userInfo.email}</Td>
+                                    <Td>{user.email}</Td>
                                 </Tr>
                                 <Tr>
                                     <Td>Phone Number</Td>
@@ -45,8 +44,8 @@ function UserProfile() {
                         </Table>
                     </TableContainer>
                     {/* <Text textAlign="left" color="gray.500">Email</Text>
-                                    <Text>{userInfo.email}</Text> */}
-                    <Button as={Link} to={`/profile/update/${userInfo.user_id}`}>Edit Profile</Button>
+                                    <Text>{user.email}</Text> */}
+                    <Button as={Link} to={`/profile/update/${user.user_id}`}>Edit Profile</Button>
                     
                 </VStack>
             </CardBody>
