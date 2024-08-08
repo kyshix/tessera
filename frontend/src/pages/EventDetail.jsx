@@ -8,45 +8,6 @@ function EventDetail() {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const eventResponse = await fetch(`http://localhost:5000/events/${id}`, { credentials: 'include' });
-  //       const eventData = await eventResponse.json();
-  //       setEvent(eventData);
-  //     } catch (error) {
-  //       console.error('Error fetching event details:', error);
-  //     }
-  //   }
-
-  //   async function fetchUserId() {
-  //     try {
-  //       const userResponse = await fetch(`http://localhost:5000/user/current`, { credentials: 'include' });
-  //       const userData = await userResponse.json();
-  //       setUserId(userData);
-  //     } catch (error) {
-  //       console.error('You are not logged in:', error);
-  //     }
-  //   }
-  //     fetchData();
-  //     fetchUserId();
-  // }, [id]);
-
-  // useEffect(() =>
-  //   async function fetchData() {
-  //     try {
-  //       const [eventResponse, userIdResponse] = await Promise.all([
-  //         fetch(`http://localhost:5000/events/${id}`, { credentials: 'include' }).then(response => response.json()).then(data => setEvent(data)).catch(error => console.error('Error fetching event details:', error)),
-  //         fetch(`http://localhost:5000/user/current`, { credentials: 'include'}).then(response => response.json()).then(data => setUserId(data))
-  //       ]);
-
-  //     }
-  //     } catch (error) {
-  //       console.error("", error)
-  //     }
-  //   }
-  // );
-
   useEffect(() => {
     fetch(`http://localhost:5000/events/${id}`, { credentials: 'include' })
       .then(response => response.json())

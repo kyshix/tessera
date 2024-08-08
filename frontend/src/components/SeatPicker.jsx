@@ -64,6 +64,7 @@ function SeatPicker({ user_id, event_id }) {
         body: JSON.stringify({ row, number, event_id, user_id })
       })
       .then(setSelected((prevItems) => [...prevItems, id]))
+      .then(fetchData())
       .then(addCb(row, number, id, 'Added to cart'))
     } catch (error) {
       console.error('Error adding seat:', error);
@@ -83,6 +84,7 @@ function SeatPicker({ user_id, event_id }) {
         body: JSON.stringify({ row, number, event_id, user_id })
       })
       .then(setSelected((list) => list.filter((item) => item !== id)))
+      .then(fetchData())
       .then(removeCb(row, number))
     } catch (error) {
       console.error('Error removing seat:', error);
@@ -91,7 +93,7 @@ function SeatPicker({ user_id, event_id }) {
     }
   };
 
-  useEffect(() => {
+  // change useeffect to a normal function
     const fetchData = async() =>{
       try{
         fetch(`http://localhost:5000/total_price/${event_id}/${user_id}`, {
@@ -104,15 +106,36 @@ function SeatPicker({ user_id, event_id }) {
           if(data.total == null){
           setTotal(0)
         } else{
-          setTotal(data.total);
+          setTotal((data.total).toFixed(2));
         }
         })  
       } catch (error) {
         console.error('Error fetching ')
       }
     }; 
-    fetchData();
-  }, [selected]);
+
+  // useEffect(() => {
+  //   const fetchData = async() =>{
+  //     try{
+  //       fetch(`http://localhost:5000/total_price/${event_id}/${user_id}`, {
+  //         method: 'GET',
+  //         headers: {
+  //           'Content-Type' : 'application/json',
+  //         }, 
+  //       }).then(response => response.json())
+  //       .then(data => {
+  //         if(data.total == null){
+  //         setTotal(0)
+  //       } else{
+  //         setTotal((data.total).toFixed(2));
+  //       }
+  //       })  
+  //     } catch (error) {
+  //       console.error('Error fetching ')
+  //     }
+  //   }; 
+  //   fetchData();
+  // }, [selected]);
 
   return (
     <div>

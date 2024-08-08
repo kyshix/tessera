@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Image, Text, VStack, Heading, LinkBox, Button } from '@chakra-ui/react';
+import { Box, Card, Image, Text, VStack, Heading, LinkBox, Button } from '@chakra-ui/react';
 import SeatPicker from './SeatPicker'
 
 function EventInformation({ id, name, date, start_time, end_time, location, imageUrl, userId}) {
-    // const [userId, setUserId] = useState("");
-    // useEffect(() => {
-    //     fetch(`http://localhost:5000/user/current`, { credentials: 'include' })
-    //         .then(response => response.json())
-    //         .then(data => setUserId(data))
-    //         .catch(error => console.error('You are not logged in:', error));
-    // }, []);
-
     return (
         <div >
             <VStack align="stretch">
                 {imageUrl && (
-                    <Image src={imageUrl} alt={`Image for ${name}`} objectFit="cover" boxSize='600px' width="full" />
+                    <Box bgColor="gray.900" rounded="sm" pos = "relative">
+                        <Image src={imageUrl} alt={`Image for ${name}`} boxSize='400px' opacity="0.4" objectFit="cover" width="full" />
+                        <Text as="b" fontSize="4xl" pos="absolute" bottom="40px" left="40px" >{name}</Text>
+                    </Box>
+                    
                 )}
             </VStack>
             <Box alignContent="center" justifyContent="center" textAlign="center">
@@ -26,13 +22,6 @@ function EventInformation({ id, name, date, start_time, end_time, location, imag
                     event_id={id} />
                 </Box>
             </Box>
-
-            {/* <Box pos="relative" boxSize="400px">
-                <Image src="https://bit.ly/2Z4KKcF" boxSize="full" />
-                <Text pos="absolute" top="50%" left="50%" color="red" transform="translate(-50%,-50%)">
-                    This text is centered on the image
-                </Text>
-            </Box> */}
         </div>
     );
 }
