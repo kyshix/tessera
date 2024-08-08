@@ -761,7 +761,7 @@ def countdown():
     # While loop that checks if total_seconds reaches zero
     # If not zero, decrement total time by one second
     
-    time.sleep(10)
+    time.sleep(30)
     print("Time up. Unreserving ticket")
     unreserve_tickets()
 

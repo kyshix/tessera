@@ -6,7 +6,7 @@ function SeatPicker({ user_id, event_id }) {
   const [rowsMap, setRowsMap] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
-  const [total, setTotal] = useState([]);
+  const [total, setTotal] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,9 +63,14 @@ function SeatPicker({ user_id, event_id }) {
         },
         body: JSON.stringify({ row, number, event_id, user_id })
       })
-      .then(setSelected((prevItems) => [...prevItems, id]))
-      .then(fetchData())
-      .then(addCb(row, number, id, 'Added to cart'))
+        .then(console.log("selected seat"))
+        .then(setSelected((prevItems) => [...prevItems, id]))
+        .then(console.log(total))
+        .then(console.log("before getting total"))
+        .then(fetchData())
+        .then(console.log(total))
+        .then(console.log("after getting total"))
+        .then(addCb(row, number, id, 'Added to cart'))
     } catch (error) {
       console.error('Error adding seat:', error);
     } finally {
@@ -83,9 +88,14 @@ function SeatPicker({ user_id, event_id }) {
         },
         body: JSON.stringify({ row, number, event_id, user_id })
       })
-      .then(setSelected((list) => list.filter((item) => item !== id)))
-      .then(fetchData())
-      .then(removeCb(row, number))
+        .then(console.log("unselected seat"))
+        .then(setSelected((list) => list.filter((item) => item !== id)))
+        .then(console.log(total))
+        .then(console.log("before getting total"))
+        .then(fetchData())
+        .then(console.log(total))
+        .then(console.log("after getting total"))
+        .then(removeCb(row, number))
     } catch (error) {
       console.error('Error removing seat:', error);
     } finally {
@@ -94,25 +104,26 @@ function SeatPicker({ user_id, event_id }) {
   };
 
   // change useeffect to a normal function
-    const fetchData = async() =>{
-      try{
-        fetch(`http://localhost:5000/total_price/${event_id}/${user_id}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type' : 'application/json',
-          }, 
-        }).then(response => response.json())
+  const fetchData = async () => {
+    try {
+      fetch(`http://localhost:5000/total_price/${event_id}/${user_id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }).then(response => response.json())
         .then(data => {
-          if(data.total == null){
-          setTotal(0)
-        } else{
-          setTotal((data.total).toFixed(2));
-        }
-        })  
-      } catch (error) {
-        console.error('Error fetching ')
-      }
-    }; 
+          console.log("total: " + data.total)
+          if (data.total == null) {
+            setTotal(0)
+          } else {
+            setTotal((data.total).toFixed(2));
+          }
+        })
+    } catch (error) {
+      console.error('Error fetching ')
+    }
+  };
 
   // useEffect(() => {
   //   const fetchData = async() =>{
