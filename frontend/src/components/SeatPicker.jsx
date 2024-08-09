@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import TesseraSeatPicker from 'tessera-seat-picker';
 
-function SeatPicker({ user_id, event_id }) {
+function SeatPicker({ user_id, event_id, updateTotal}) {
   const [allSeats, setAllSeats] = useState([]);
   const [rowsMap, setRowsMap] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -65,11 +65,12 @@ function SeatPicker({ user_id, event_id }) {
       })
         .then(console.log("selected seat"))
         .then(setSelected((prevItems) => [...prevItems, id]))
-        .then(console.log(total))
-        .then(console.log("before getting total"))
-        .then(fetchData())
-        .then(console.log(total))
-        .then(console.log("after getting total"))
+        // .then(console.log(total))
+        // .then(console.log("before getting total"))
+        // .then(fetchData())
+        // .then(console.log(total))
+        // .then(console.log("after getting total"))
+        .then(() => updateTotal())
         .then(addCb(row, number, id, 'Added to cart'))
     } catch (error) {
       console.error('Error adding seat:', error);
@@ -90,11 +91,12 @@ function SeatPicker({ user_id, event_id }) {
       })
         .then(console.log("unselected seat"))
         .then(setSelected((list) => list.filter((item) => item !== id)))
-        .then(console.log(total))
-        .then(console.log("before getting total"))
-        .then(fetchData())
-        .then(console.log(total))
-        .then(console.log("after getting total"))
+        // .then(console.log(total))
+        // .then(console.log("before getting total"))
+        // .then(fetchData())
+        // .then(console.log(total))
+        // .then(console.log("after getting total"))
+        .then(() => updateTotal())
         .then(removeCb(row, number))
     } catch (error) {
       console.error('Error removing seat:', error);
@@ -104,26 +106,25 @@ function SeatPicker({ user_id, event_id }) {
   };
 
   // change useeffect to a normal function
-  const fetchData = async () => {
-    try {
-      fetch(`http://localhost:5000/total_price/${event_id}/${user_id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }).then(response => response.json())
-        .then(data => {
-          console.log("total: " + data.total)
-          if (data.total == null) {
-            setTotal(0)
-          } else {
-            setTotal((data.total).toFixed(2));
-          }
-        })
-    } catch (error) {
-      console.error('Error fetching ')
-    }
-  };
+  // const fetchData = async () => {
+  //   try {
+  //     fetch(`http://localhost:5000/total_price/${event_id}/${user_id}`, {
+  //       method: 'GET',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     }).then(response => response.json())
+  //       .then(data => {
+  //         if (data.total == null) {
+  //           setTotal(0)
+  //         } else {
+  //           setTotal((data.total).toFixed(2));
+  //         }
+  //       })
+  //   } catch (error) {
+  //     console.error('Error fetching total cost of tickets')
+  //   }
+  // };
 
   // useEffect(() => {
   //   const fetchData = async() =>{
@@ -163,7 +164,6 @@ function SeatPicker({ user_id, event_id }) {
           loading={loading}
         />
       )}
-      <div>Total: {total}</div>
       <div>Selected: {selected}</div>
     </div>
   );

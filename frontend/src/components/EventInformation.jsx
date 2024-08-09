@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, Card, Image, Text, VStack, Heading, LinkBox, Button } from '@chakra-ui/react';
 import SeatPicker from './SeatPicker'
 
-function EventInformation({ id, name, date, start_time, end_time, location, imageUrl, userId}) {
+function EventInformation({ id, name, date, start_time, end_time, location, imageUrl, userId, updateTotal}) {
     return (
         <div >
             <VStack align="stretch">
@@ -19,7 +19,8 @@ function EventInformation({ id, name, date, start_time, end_time, location, imag
                 <Box bgColor="red.500"> 
                 <SeatPicker
                     user_id={userId}
-                    event_id={id} />
+                    event_id={id} 
+                    updateTotal={updateTotal}/>
                 </Box>
             </Box>
         </div>

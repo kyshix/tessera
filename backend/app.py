@@ -700,7 +700,7 @@ def reserve_ticket():
             cursor.execute("UPDATE Tickets SET user_id = ?, status = 'RESERVED'  WHERE row_name = ? AND seat_number = ? AND event_id = ?", (user_id, row_name, seat_number, event_id,),)
             conn.commit()
             conn.close()
-            countdown()
+            # countdown()
             return jsonify({"message" : "Ticket Reserved"}), 200
         else: 
             return jsonify({"error" : "Ticket is not available to reserve"}), 400
@@ -709,27 +709,29 @@ def reserve_ticket():
         
 @app.route("/inventory/buy", methods=["PUT"])
 def buy_tickets():
-    row_name = request.json.get("row_name")
-    seat_number = request.json.get("seat_number")
-    event_id = request.json.get("event_id")
-    user_id = request.json.get("user_id")
+    event_id = request.json.get("id")
+    user_id = request.json.get("userId")
     
-    if (not row_name or not seat_number or not event_id or not user_id):
+    if (not event_id or not user_id):
         return jsonify("All fields are required"), 400
     
     try: 
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT status, user_id FROM Tickets WHERE row_name = ? AND seat_number = ? AND event_id = ?", (row_name, seat_number, event_id,),)
-        result = cursor.fetchone()
-        if result["status"] == "RESERVED" and result['user_id'] == user_id:
-            cursor.execute("UPDATE Tickets SET purchase_date = ?, status = 'SOLD' WHERE row_name = ? AND seat_number=? AND event_id=?", (str(date.today()), row_name, seat_number, event_id))
-            conn.commit()
-            conn.close()
-            return jsonify({'message' : f'Ticket puchased! Your seat is in row {row_name} and seat number(s) {seat_number}'}), 200
-        else: 
-            return jsonify({"error" : "Ticket is not available to purchase"}), 400
+        # cursor.execute("SELECT status, user_id FROM Tickets WHERE row_name = ? AND seat_number = ? AND event_id = ?", (row_name, seat_number, event_id,),)
+        # result = cursor.fetchone()
+        # if result["status"] == "RESERVED" and result['user_id'] == user_id:
+        cursor.execute("UPDATE Tickets SET purchase_date = ?, status = 'SOLD' WHERE user_id=? AND event_id=?", (str(date.today()), user_id, event_id))
+        conn.commit()
+        cursor.execute("SELECT row_name, seat_number FROM Tickets WHERE user_id=? AND event_id=? AND status='SOLD' AND purchase_date=?", (user_id, event_id,str(date.today()),),)
+        tickets=cursor.fetchall()
+        tickets_list = [dict(ticket) for ticket in tickets]
+        
+        conn.close()
+        return jsonify({'message' : 'Ticket puchased!', 'tickets' : tickets_list}), 200
+        # else: 
+        #     return jsonify({"error" : "Ticket is not available to purchase"}), 400
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
 
@@ -742,17 +744,17 @@ def unreserve_tickets():
     try: 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT status FROM Tickets WHERE row_name = ? AND seat_number = ? AND event_id = ?", (row_name, seat_number, event_id,),)
-        status = cursor.fetchone()
-        print(status["status"])
+        # cursor.execute("SELECT status FROM Tickets WHERE row_name = ? AND seat_number = ? AND event_id = ?", (row_name, seat_number, event_id,),)
+        # status = cursor.fetchone()
+        # print(status["status"])
 
-        if status["status"] == "RESERVED":
-            cursor.execute("UPDATE Tickets SET status = ?, user_id = NULL WHERE row_name = ? AND seat_number = ? AND event_id = ? AND user_id = ?", ('AVAILABLE',row_name, seat_number, event_id,user_id,),)
-            conn.commit()
-            conn.close()
-            return jsonify({'message' : 'Ticket is back in the pool for purchase'}), 200
-        else:
-            return jsonify({'error' : 'Ticket not unreserved'}), 403
+        # if status["status"] == "RESERVED":
+        cursor.execute("UPDATE Tickets SET status = 'AVAILABLE', user_id = NULL WHERE row_name = ? AND seat_number = ? AND event_id = ? AND user_id = ? AND status = 'RESERVED'", (row_name, seat_number, event_id,user_id,),)
+        conn.commit()
+        conn.close()
+        return jsonify({'message' : 'Ticket is back in the pool for purchase'}), 200
+        # else:
+        #     return jsonify({'error' : 'Ticket not unreserved'}), 403
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
 
@@ -761,7 +763,7 @@ def countdown():
     # While loop that checks if total_seconds reaches zero
     # If not zero, decrement total time by one second
     
-    time.sleep(30)
+    time.sleep(5)
     print("Time up. Unreserving ticket")
     unreserve_tickets()
 
@@ -787,24 +789,6 @@ def get_total_price(event_id, user_id):
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
 
-@app.route("/ticket_price/<event_id>/<row_name><seat_number>", methods=["GET"])
-def get_ticket_price(event_id, row_name, seat_number): 
-    if (not event_id or not row_name or not seat_number):
-        return jsonify("All fields are required"), 400
-    
-    try: 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        
-        cursor.execute("SELECT value FROM Tickets JOIN Prices ON Tickets.pricecode = Prices.pricecode AND Tickets.event_id = Prices.event_id WHERE Tickets.event_id=? AND row_name=? AND seat_number=?",(event_id, row_name, seat_number,),)
-        cost = cursor.fetchone()
-        conn.close()
-        return jsonify({
-            "cost" : cost['value']
-        }), 200
-    except Exception as e: 
-        return jsonify({"error" : str(e)}), 500
-        
 # admin portal to add events
 if __name__ == "__main__":
     app.run(debug=True)
