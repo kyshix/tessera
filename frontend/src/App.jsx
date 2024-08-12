@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChakraProvider, extendTheme } from '@chakra-ui/react';
+import { ChakraProvider, extendTheme, Box } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import EventsPage from './pages/EventsPage';

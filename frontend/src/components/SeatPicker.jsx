@@ -63,7 +63,6 @@ function SeatPicker({ user_id, event_id, updateTotal}) {
         },
         body: JSON.stringify({ row, number, event_id, user_id })
       })
-        .then(console.log("selected seat"))
         .then(setSelected((prevItems) => [...prevItems, id]))
         // .then(console.log(total))
         // .then(console.log("before getting total"))
@@ -89,7 +88,6 @@ function SeatPicker({ user_id, event_id, updateTotal}) {
         },
         body: JSON.stringify({ row, number, event_id, user_id })
       })
-        .then(console.log("unselected seat"))
         .then(setSelected((list) => list.filter((item) => item !== id)))
         // .then(console.log(total))
         // .then(console.log("before getting total"))
@@ -164,7 +162,6 @@ function SeatPicker({ user_id, event_id, updateTotal}) {
           loading={loading}
         />
       )}
-      <div>Selected: {selected}</div>
     </div>
   );
 }
