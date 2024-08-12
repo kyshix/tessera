@@ -787,7 +787,7 @@ def buy_tickets():
         
         tickets_list = [dict(ticket) for ticket in tickets]
         formatted_tickets_list = [f"{ticket['row_name']}{ticket['seat_number']}" for ticket in tickets_list]
-        send_ticket_email(email, formatted_tickets_list)
+        # send_ticket_email(email, formatted_tickets_list)
         
         return jsonify({'message' : 'Ticket puchased!'}), 200
         # else: 
@@ -848,31 +848,6 @@ def get_total_price(event_id, user_id):
         }), 200
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
-
-@app.route("/send-ticket-confirmation", methods=["POST"])   
-def send_ticket_email(to_email, seats):
-    seat_list = ', '.join(seats)
-    
-    subject = "Your Tickets from Tessera"
-    html_content = f"""
-    <h1>Thank you for your purchase!</h1>
-    <p>You have successfully purchased tickets for the following seats:</p>
-    <p>{seat_list}</p>
-    <p>Please bring this email to the event as your ticket confirmation.</p>
-    """
-    
-    message = Mail(
-        from_email='shikitty.023@gmail.com',
-        to_emails=to_email,
-        subject=subject,
-        html_content=html_content
-    )
-    try:
-        sg = SendGridAPIClient(sendgrid_api_key)
-        response = sg.send(message)
-        print(f"Email sent to {to_email}, status code: {response.status_code}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
 
 # admin portal to add events
 if __name__ == "__main__":
