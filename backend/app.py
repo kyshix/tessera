@@ -851,7 +851,6 @@ def get_total_price(event_id, user_id):
 
 @app.route("/send-ticket-confirmation", methods=["POST"])   
 def send_ticket_email(to_email, seats):
-    sendgrid_key = ''  # Replace with your SendGrid API key
     seat_list = ', '.join(seats)
     
     subject = "Your Tickets from Tessera"
@@ -869,7 +868,7 @@ def send_ticket_email(to_email, seats):
         html_content=html_content
     )
     try:
-        sg = SendGridAPIClient(sendgrid_key)
+        sg = SendGridAPIClient(sendgrid_api_key)
         response = sg.send(message)
         print(f"Email sent to {to_email}, status code: {response.status_code}")
     except Exception as e:
