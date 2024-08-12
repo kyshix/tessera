@@ -851,7 +851,7 @@ def get_total_price(event_id, user_id):
 
 @app.route("/send-ticket-confirmation", methods=["POST"])   
 def send_ticket_email(to_email, seats):
-    sendgrid_api_key = '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'  # Replace with your SendGrid API key
+    sendgrid_api_key = ''  # Replace with your SendGrid API key
     seat_list = ', '.join(seats)
     
     subject = "Your Tickets from Tessera"
