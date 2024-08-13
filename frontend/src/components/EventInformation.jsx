@@ -30,9 +30,11 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
                 <Grid
                     h='713px'
                     templateColumns='repeat(11, 1fr)'
+                    templateRows='repeat(15,1fr)'
                 >
                     <GridItem
                         colSpan={8}
+                        rowSpan={15}
                         bg='palevioletred'
                         justifyContent="center"
                     // alignContent="center"
@@ -45,21 +47,35 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
                     </GridItem>
                     <GridItem
                         colSpan={3}
-                        // bg="peachpuff"
+                        rowSpan={1}
+                        bg="peachpuff"
                         justifyContent="center"
-                        borderWidth="2px"
                     // alignContent="center"
                     >
                         <Box 
                             // bgColor="palegoldenrod" 
                             paddingTop="10px" 
-                            paddingBottom="10px" 
+                            // paddingBottom="10px" 
                             // borderWidth="2px"
                             // borderColor="gray.300"
-                            bgColor="gray.200"
+                            // bgColor="gray.200"
                         >
                             <Text as='b' fontSize="xl">Tickets</Text>
                         </Box>
+                    </GridItem>
+                    <GridItem
+                        colSpan={3}
+                        rowSpan={13}
+                        bg="paleturquoise"
+                    >
+
+                    </GridItem>
+                    <GridItem
+                        colSpan={3}
+                        rowSpan={1}
+                        bg="plum"
+                    >
+
                     </GridItem>
                 </Grid>
             </Box>

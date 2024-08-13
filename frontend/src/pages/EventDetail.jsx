@@ -79,7 +79,7 @@ function EventDetail() {
           {/* <div>Total: {total}</div> */}
           
           <>
-            {/* <Button onClick={onOpen}>Checkout</Button> */}
+            <Button onClick={onOpen}>Checkout</Button>
             <Modal isOpen={isOpen} onClose={onClose}> 
               <ModalOverlay>
                 <ModalContent>
