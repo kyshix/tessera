@@ -4,7 +4,7 @@
     event_id INTEGER,
     user_id INTEGER,
     purchase_date DATE,
-	status TEXT CHECK(status IN ('AVAILIBLE', 'RESERVED', 'SOLD')),
+	status TEXT CHECK(status IN ('AVAILABLE', 'RESERVED', 'SOLD')),
     price REAL,
 	PRIMARY KEY (event_id, seat_number, row_name)
     FOREIGN KEY (event_id) REFERENCES Events(event_id),

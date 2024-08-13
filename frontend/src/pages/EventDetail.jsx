@@ -8,7 +8,6 @@ function EventDetail() {
   const { id } = useParams();
   const [event, setEvent] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [total, setTotal] = useState(0);
 
   const navigate = useNavigate();
@@ -36,22 +35,31 @@ function EventDetail() {
   };
 
   useEffect(() => {
-    fetch(`http://localhost:5000/events/${id}`, { credentials: 'include' })
+    fetch(`http://localhost:5000/events/${id}`)
       .then(response => response.json())
       .then(data => setEvent(data))
       .catch(error => console.error('Error fetching event details:', error));
   }, []);
 
   useEffect(() => {
-    fetch(`http://localhost:5000/user/current`, { credentials: 'include' })
-      .then(response => response.json())
-      .then(data => setUserId(data))
-      .catch(error => console.error('You are not logged in:', error));
+    fetch(`http://localhost:5000/user/current`,{credentials: 'include'})
+      .then(response => {
+        if(!response.ok){
+          navigate('/login');
+        }
+        return response.json()
+      })
+      .then(data => {
+        setUserId(data);
+      })
+      .catch(error => {
+        console.error('You are not logged in:', error)}
+      );
   }, []);
 
   return (
     <div>
-      {userId && event ? (
+      {userId && event? (
         <Box
           alignContent="center"
           justifyContent="center">
@@ -68,9 +76,10 @@ function EventDetail() {
             
             updateTotal={ticketTotal}
           />
-          <div>Total: {total}</div>
+          {/* <div>Total: {total}</div> */}
+          
           <>
-            <Button onClick={onOpen}>Checkout</Button>
+            {/* <Button onClick={onOpen}>Checkout</Button> */}
             <Modal isOpen={isOpen} onClose={onClose}> 
               <ModalOverlay>
                 <ModalContent>
@@ -92,6 +101,7 @@ function EventDetail() {
               </ModalOverlay>
             </Modal>
           </>
+          
         </Box>
       ) : (<h2>Loading...</h2>)}
     </div>

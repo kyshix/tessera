@@ -11,10 +11,10 @@ import stripe
 from datetime import datetime, timedelta, date
 import time
 from flask_cors import CORS
-
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 import os
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
 
 from flask_jwt_extended import (
     JWTManager,
@@ -65,27 +65,27 @@ def create_payment_intent():
     except Exception as e:
         return jsonify(error=str(e)), 403
 
-@app.route('/complete-purchase', methods=['POST'])
-def complete_purchase():
-    try:
-        data = request.json
-        payment_intent_id = data['paymentIntentId']
-        seats = data['seats']
+# @app.route('/complete-purchase', methods=['POST'])
+# def complete_purchase():
+#     try:
+#         data = request.json
+#         payment_intent_id = data['paymentIntentId']
+#         seats = data['seats']
         
-        # More Docs: https://docs.stripe.com/api/payment_intents/retrieve
-        payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-        if payment_intent.status != 'succeeded':
-            return jsonify({"error": "Payment not successful"}), 400
+#         # More Docs: https://docs.stripe.com/api/payment_intents/retrieve
+#         payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+#         if payment_intent.status != 'succeeded':
+#             return jsonify({"error": "Payment not successful"}), 400
         
-        ### This is where you should process the sale
-        ### Remember everything you need to assign seats to an account
-        ### You'll probably need more inputs
-        ### Create functions to help you with this! Break up your code
+#         ### This is where you should process the sale
+#         ### Remember everything you need to assign seats to an account
+#         ### You'll probably need more inputs
+#         ### Create functions to help you with this! Break up your code
 
-        return jsonify({"message": "Purchase completed successfully"})
+#         return jsonify({"message": "Purchase completed successfully"})
     
-    except Exception as e:
-        return jsonify(error=str(e)), 500
+#     except Exception as e:
+#         return jsonify(error=str(e)), 500
 
 # Continue to edit as more filters are being added in the frontend
 # Returns the events fitting the filters provided
@@ -292,9 +292,14 @@ def get_user_profile():
 @app.route("/user/current", methods=["GET"])
 @jwt_required()
 def get_user_id():
-    jwt = get_jwt()
-    user_id = jwt["sub"]["user_id"]
-    return jsonify(user_id)
+    try:
+        jwt = get_jwt()
+        user_id = jwt["sub"]["user_id"]
+        print(user_id)
+        return jsonify(user_id), 200
+    except Exception as e:
+        print("log in loser")
+        return jsonify({"user_id": None})
     
 # create forget password thing (update password)
 # generate code for recovery, maybe edit the change password code to accomdate
@@ -628,12 +633,12 @@ def reward_ticket():
 
 
 @app.route("/events/<event_id>", methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def get_event(event_id):
     try:
-        current_user = get_jwt_identity()
-        if not current_user:
-            return jsonify({"error": "Unauthorized"}), 401
+        # current_user = get_jwt_identity()
+        # if not current_user:
+        #     return jsonify({"error": "Unauthorized"}), 401
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -699,9 +704,15 @@ def create_tickets():
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
     
-@app.route("/inventory/prices/<event_id>", methods=["GET"])
+@app.route("/inventory/prices/event/<event_id>", methods=["GET"])
+@jwt_required()
 def get_all_tickets(event_id):
     try: 
+        current_user = get_jwt_identity()
+        if not current_user:
+            print(current_user)
+            return jsonify({"message": "unauthorized"}), 401
+        
         conn = get_db_connection()
         cursor = conn.cursor()
         # SELECT row_name, seat_number, value FROM Tickets JOIN Prices ON Tickets.pricecode = Prices.pricecode AND Tickets.event_id = Prices.event_id
@@ -756,11 +767,6 @@ def reserve_ticket():
         
 @app.route("/inventory/buy", methods=["PUT"])
 def buy_tickets():
-    # payment_intent_id = data['paymentIntentId']
-    # payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-    # if payment_intent.status != 'succeeded':
-    #     return jsonify({"error": "Payment not successful"}), 400
-    
     event_id = request.json.get("eventId")
     user_id = request.json.get("userId")
     
@@ -771,27 +777,25 @@ def buy_tickets():
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # cursor.execute("SELECT status, user_id FROM Tickets WHERE row_name = ? AND seat_number = ? AND event_id = ?", (row_name, seat_number, event_id,),)
-        # result = cursor.fetchone()
-        # if result["status"] == "RESERVED" and result['user_id'] == user_id:
         cursor.execute("SELECT row_name, seat_number FROM Tickets WHERE user_id=? AND event_id=? AND status='RESERVED'", (user_id, event_id,),)
         tickets=cursor.fetchall()
         
-        cursor.execute("UPDATE Tickets SET purchase_date = ?, status = 'SOLD' WHERE user_id=? AND event_id=?", (str(date.today()), user_id, event_id,),)
+        cursor.execute("UPDATE Tickets SET purchase_date = ?, status = 'SOLD' WHERE user_id=? AND event_id=? AND status='RESERVED'", (str(date.today()), user_id, event_id,),)
         conn.commit()
         
         cursor.execute("SELECT email FROM Users WHERE user_id=?", (user_id,),)
         # email=cursor.fetchone()
         email='shikitty.023@gmail.com'
-        conn.close()
         
+        cursor.execute("SELECT * FROM Events WHERE event_id =?", (event_id,),)
+        event_infos = cursor.fetchone()
+        conn.close()
+
         tickets_list = [dict(ticket) for ticket in tickets]
         formatted_tickets_list = [f"{ticket['row_name']}{ticket['seat_number']}" for ticket in tickets_list]
-        # send_ticket_email(email, formatted_tickets_list)
+        send_ticket_confirmation_email(email, formatted_tickets_list, event_infos)
         
         return jsonify({'message' : 'Ticket puchased!'}), 200
-        # else: 
-        #     return jsonify({"error" : "Ticket is not available to purchase"}), 400
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
 
@@ -804,25 +808,15 @@ def unreserve_tickets():
     try: 
         conn = get_db_connection()
         cursor = conn.cursor()
-        # cursor.execute("SELECT status FROM Tickets WHERE row_name = ? AND seat_number = ? AND event_id = ?", (row_name, seat_number, event_id,),)
-        # status = cursor.fetchone()
-        # print(status["status"])
-
-        # if status["status"] == "RESERVED":
+    
         cursor.execute("UPDATE Tickets SET status = 'AVAILABLE', user_id = NULL WHERE row_name = ? AND seat_number = ? AND event_id = ? AND user_id = ? AND status = 'RESERVED'", (row_name, seat_number, event_id,user_id,),)
         conn.commit()
         conn.close()
         return jsonify({'message' : 'Ticket is back in the pool for purchase'}), 200
-        # else:
-        #     return jsonify({'error' : 'Ticket not unreserved'}), 403
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
 
 def countdown():
-    # Calculate the total number of seconds
-    # While loop that checks if total_seconds reaches zero
-    # If not zero, decrement total time by one second
-    
     time.sleep(5)
     print("Time up. Unreserving ticket")
     unreserve_tickets()
@@ -837,9 +831,6 @@ def get_total_price(event_id, user_id):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        # cursor.execute("SELECT row_name, seat_number, value FROM Tickets JOIN Prices ON Tickets.pricecode = Prices.pricecode AND Tickets.event_id = Prices.event_id WHERE Tickets.event_id=? AND user_id=? AND status=?", (event_id, user_id, 'RESERVED',),)
-        # tickets_cost_list = [cost['value'] for cost in cursor.fetchall()]
-        # total = sum(tickets_cost_list)
         cursor.execute("SELECT sum(value) AS total FROM Tickets JOIN Prices ON Tickets.pricecode = Prices.pricecode AND Tickets.event_id = Prices.event_id WHERE Tickets.event_id=? AND user_id=? AND status='RESERVED'", (event_id, user_id,),)
         total = cursor.fetchone()
         conn.close()
@@ -848,7 +839,35 @@ def get_total_price(event_id, user_id):
         }), 200
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
+    
+def send_ticket_confirmation_email(to_email, seats, event_info):
+    # Gmail account credentials
+    from_email = 'kyshi874@terpmail.umd.edu'
+    from_password = 'ppoe pzgh ibvj fuam'  
 
-# admin portal to add events
+    # Setup the MIME
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = to_email
+    msg['Subject'] = f"Tessera: Your Ticket Purchase Confirmation for {event_info["name"]} "
+    
+    print(event_info)
+    seats_list = ', '.join(seats)
+    content = f"Thank you for your purchase!\n\nYou've successfully purchased tickets for the following seats: {seats_list}\nPlease bring this email to the event as your ticket confirmation for {event_info["name"]} at {event_info["location"]}.\nThe event begins at {event_info["start_time"]}, please ensure that you arrive early to not miss a second of the event.\nSee you soon!"
+    print(content)
+    msg.attach(MIMEText(content, 'plain'))
+
+    try:
+        # Connect to the Gmail SMTP server
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()  # Secure the connection
+        server.login(from_email, from_password)  
+        text = msg.as_string()  # Convert the message to a string
+        server.sendmail(from_email, to_email, text)  # Send the email
+        server.quit()  # Close the connection
+        print(f"Email sent to {to_email} successfully.")
+    except Exception as e:
+        print(f"Failed to send email. Error: {e}")
+        
 if __name__ == "__main__":
     app.run(debug=True)

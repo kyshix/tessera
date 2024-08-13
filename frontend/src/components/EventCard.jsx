@@ -25,16 +25,11 @@ function EventCard({ id, name, date, start_time, end_time, location, imageUrl })
             const days = Math.floor(distance_start / (1000 * 60 * 60 * 24));
             const hours = Math.floor((distance_start % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance_start % (1000 * 60 * 60)) / (1000 * 60));
-            // const seconds = Math.floor((distance_start % (1000 * 60)) / 1000);
-
-            // Update the timer text
-            // setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
             setTimeLeft(`${days}d ${hours}h ${minutes}m`);
         };
-
         // Update the timer every second
         const timerId = setInterval(updateTimer, 1000);
-
+        
         // Cleanup the interval on component unmount
         return () => clearInterval(timerId);
     }, [date]);

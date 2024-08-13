@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { Box, Card, Image, Text, VStack, Heading, LinkBox, Button, HStack } from '@chakra-ui/react';
 import TesseraSeatPicker from 'tessera-seat-picker';
 
-function SeatPicker({ user_id, event_id, updateTotal}) {
+function SeatPicker({ user_id, event_id, updateTotal }) {
   const [allSeats, setAllSeats] = useState([]);
   const [rowsMap, setRowsMap] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
-  const [total, setTotal] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/inventory/prices/${event_id}`, {
+        const response = await fetch(`http://localhost:5000/inventory/prices/event/${event_id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include'
         });
         const data = await response.json();
         setAllSeats(data);
@@ -23,7 +24,6 @@ function SeatPicker({ user_id, event_id, updateTotal}) {
         console.error(`Error fetching all tickets for event: ${event_id}`, error);
       }
     };
-
     fetchData();
   }, [event_id]);
 
@@ -55,7 +55,6 @@ function SeatPicker({ user_id, event_id, updateTotal}) {
   const addSeatCallback = async ({ row, number, id }, addCb) => {
     setLoading(true);
     try {
-      // debugger
       fetch(`http://localhost:5000/inventory/reserve`, {
         method: 'PUT',
         headers: {
@@ -64,11 +63,6 @@ function SeatPicker({ user_id, event_id, updateTotal}) {
         body: JSON.stringify({ row, number, event_id, user_id })
       })
         .then(setSelected((prevItems) => [...prevItems, id]))
-        // .then(console.log(total))
-        // .then(console.log("before getting total"))
-        // .then(fetchData())
-        // .then(console.log(total))
-        // .then(console.log("after getting total"))
         .then(() => updateTotal())
         .then(addCb(row, number, id, 'Added to cart'))
     } catch (error) {
@@ -89,11 +83,6 @@ function SeatPicker({ user_id, event_id, updateTotal}) {
         body: JSON.stringify({ row, number, event_id, user_id })
       })
         .then(setSelected((list) => list.filter((item) => item !== id)))
-        // .then(console.log(total))
-        // .then(console.log("before getting total"))
-        // .then(fetchData())
-        // .then(console.log(total))
-        // .then(console.log("after getting total"))
         .then(() => updateTotal())
         .then(removeCb(row, number))
     } catch (error) {
@@ -103,64 +92,24 @@ function SeatPicker({ user_id, event_id, updateTotal}) {
     }
   };
 
-  // change useeffect to a normal function
-  // const fetchData = async () => {
-  //   try {
-  //     fetch(`http://localhost:5000/total_price/${event_id}/${user_id}`, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     }).then(response => response.json())
-  //       .then(data => {
-  //         if (data.total == null) {
-  //           setTotal(0)
-  //         } else {
-  //           setTotal((data.total).toFixed(2));
-  //         }
-  //       })
-  //   } catch (error) {
-  //     console.error('Error fetching total cost of tickets')
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const fetchData = async() =>{
-  //     try{
-  //       fetch(`http://localhost:5000/total_price/${event_id}/${user_id}`, {
-  //         method: 'GET',
-  //         headers: {
-  //           'Content-Type' : 'application/json',
-  //         }, 
-  //       }).then(response => response.json())
-  //       .then(data => {
-  //         if(data.total == null){
-  //         setTotal(0)
-  //       } else{
-  //         setTotal((data.total).toFixed(2));
-  //       }
-  //       })  
-  //     } catch (error) {
-  //       console.error('Error fetching ')
-  //     }
-  //   }; 
-  //   fetchData();
-  // }, [selected]);
-
   return (
     <div>
       {loading ? (
-        <h2>Loading...</h2>
+        <h2>No Seats Available...</h2>
       ) : (
-        <TesseraSeatPicker
-          addSeatCallback={addSeatCallback}
-          removeSeatCallback={removeSeatCallback}
-          rows={rowsMap}
-          maxReservableSeats={3}
-          alpha
-          visible
-          loading={loading}
-        />
+        <Box>
+          <TesseraSeatPicker
+            addSeatCallback={addSeatCallback}
+            removeSeatCallback={removeSeatCallback}
+            rows={rowsMap}
+            maxReservableSeats={3}
+            alpha
+            visible
+            loading={loading}
+            seatStyle={{backgroundColor: '#777799', borderRadius: '2px'}}
+            stageStyle={{backgroundColor: 'brown'}}
+          />
+        </Box>
       )}
     </div>
   );

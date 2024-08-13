@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { ChakraProvider, extendTheme, Box } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -20,21 +20,30 @@ const customTheme = extendTheme({
 });
 
 function App() {
+  const [isCustom, setIsCustom] = useState(null);
+  const changeTheme = (value) => {
+    setIsCustom(value);
+  }
+
   return (
-    <ChakraProvider theme={(location.pathname !== "/login" && location.pathname !== "/signup") === true ? customTheme : undefined}>
+    <ChakraProvider 
+      theme={isCustom === true ? customTheme : undefined}
+    >
       <Router>
-        <AppContent />
+        <AppContent changeTheme={changeTheme}/>
       </Router>
     </ChakraProvider>
   );
 }
 
-function AppContent() {
+function AppContent({changeTheme}) {
   const location = useLocation();
-  // const isMarginApplied = (location.pathname !== "/login" && location.pathname !== "/signup");
+  const isMarginApplied = (location.pathname !== "/login" && location.pathname !== "/signup");
+  useEffect(() => {changeTheme(isMarginApplied)}, [isMarginApplied])
+  
   return (
     <>
-      {location.pathname !== "/login" && location.pathname !== "/signup" && <Navbar />}
+      {isMarginApplied && <Navbar />}
       <Routes>
         <Route path="/events" element={<EventsPage />} />
         <Route path="/" element={<Navigate to="/events" replace />} />
