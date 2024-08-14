@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Card, Image, Text, VStack, Heading, LinkBox, Button, HStack } from '@chakra-ui/react';
 import TesseraSeatPicker from 'tessera-seat-picker';
+import "../../style.css"
 
-function SeatPicker({ user_id, event_id, updateTotal }) {
+function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
   const [allSeats, setAllSeats] = useState([]);
   const [rowsMap, setRowsMap] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
+
+  useEffect(() => {
+    updateSeats(selected)
+  }, [selected])
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +38,7 @@ function SeatPicker({ user_id, event_id, updateTotal }) {
         allSeats.reduce((acc, cur) => {
           const rowId = cur.row_name;
           const seatInfo = {
-            id: rowId + cur.seat_number,
+            id: rowId + cur.seat_number + String('$' + cur.value.toFixed(2)),
             number: cur.seat_number,
             isReserved: cur.status !== 'AVAILABLE',
             tooltip: String('$' + cur.value.toFixed(2)),
@@ -51,6 +56,7 @@ function SeatPicker({ user_id, event_id, updateTotal }) {
       setLoading(false);
     }
   }, [allSeats]);
+
 
   const addSeatCallback = async ({ row, number, id }, addCb) => {
     setLoading(true);
@@ -97,19 +103,15 @@ function SeatPicker({ user_id, event_id, updateTotal }) {
       {loading ? (
         <h2>No Seats Available...</h2>
       ) : (
-        <Box>
-          <TesseraSeatPicker
-            addSeatCallback={addSeatCallback}
-            removeSeatCallback={removeSeatCallback}
-            rows={rowsMap}
-            maxReservableSeats={3}
-            alpha
-            visible
-            loading={loading}
-            seatStyle={{backgroundColor: '#777799', borderRadius: '2px'}}
-            stageStyle={{backgroundColor: 'brown'}}
-          />
-        </Box>
+        <TesseraSeatPicker
+          addSeatCallback={addSeatCallback}
+          removeSeatCallback={removeSeatCallback}
+          rows={rowsMap}
+          maxReservableSeats={3}
+          alpha
+          visible
+          loading={loading}
+        />
       )}
     </div>
   );

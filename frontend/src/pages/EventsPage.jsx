@@ -14,10 +14,10 @@ function EventsPage() {
     function handleDatesFilter(dates) {
         setDatesFilter(dates);
     }
-
     const startDate = (datesFilter === undefined || datesFilter.length == 0) ? today.toISOString().split('T')[0] : datesFilter[0];
     const endDate = (datesFilter === undefined || datesFilter.length == 0) ? null : datesFilter[1];
 
+    console.log(startDate)
     useEffect(() => {
         fetch(`http://localhost:5000/events?afterDate=${startDate}${endDate ? `&beforeDate=${endDate}` : ''}`)
             .then(response => response.json())
@@ -32,7 +32,10 @@ function EventsPage() {
             <Button as={Link} to={'/test'}>
 
             </Button> */}
-                {/* <FilterBar></FilterBar> */}
+                {/* <FilterBar/> */}
+                <Box paddingTop="20px"> 
+                    <Filter sendDatesFilter={handleDatesFilter}/>
+                </Box>
                 <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={10} py={5}>
                     {events.map(event => (
                         <EventCard

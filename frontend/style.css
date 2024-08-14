@@ -1,0 +1,27 @@
+.seat {
+    width: 50px !important;
+    height: 50px !important;
+}
+
+.seat-picker__row--selected {
+    background-color: rgba(255, 0, 0, 0) !important;
+}
+
+.seat-picker__row--enabled:hover {
+    background-color: #ff000000 !important;
+}
+
+.seat-picker{
+    justify-self: center !important;
+}
+
+.stages {
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+    height: 40px !important; 
+    border-radius: 5px !important;
+    width: 900px !important;
+    font-weight: bold !important;
+    /* color should work on both light and dark mode hmm */
+    background-color:rgb(41, 33, 101) !important;
+}

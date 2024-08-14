@@ -1,18 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, Image, Text, VStack, LinkBox, HStack, Grid, GridItem, Button, Heading } from '@chakra-ui/react';
-import SeatPicker from './SeatPicker'
+import { useNavigate } from 'react-router-dom';
+import { Box, SimpleGrid, Card, Image, Text, VStack, LinkBox, HStack, Grid, GridItem, Button, Heading, Flex, Spacer, Divider, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from '@chakra-ui/react';
+import SeatPicker from '../components/SeatPicker'
+import PaymentForm from '../components/PaymentForm';
 
-function EventInformation({ id, name, date, start_time, end_time, location, description, imageUrl, userId, updateTotal }) {
+function EventInformation({ id, name, date, start_time, end_time, location, description, imageUrl, userId }) {
+    const [total, setTotal] = useState(0);
+    const [selectedSeats, setSelectedSeats] = useState([]);
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const navigate = useNavigate();
+
+    const seatsSelected = (value) => {
+        setSelectedSeats(value);
+
+    };
+    // console.log(selectedSeats);
+
+    const ticketTotal = async () => {
+        try {
+            fetch(`http://localhost:5000/total_price/${id}/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.total == null) {
+                        setTotal(0)
+                    } else {
+                        setTotal((data.total).toFixed(2));
+                    }
+                })
+        } catch (error) {
+            console.error('Error fetching total cost of tickets')
+        }
+    };
+
     return (
-        <div >
+        <>
             {/* the event information layout */}
             <VStack align="stretch">
                 {imageUrl && (
-                    <LinkBox bgColor="gray.900" pos="relative">
+                    <LinkBox bgColor="gray.900" pos="relative" overflow="auto">
                         <Image src={imageUrl} alt={`Image for ${name}`} boxSize='205px' opacity="0.25" objectFit="cover" width="full" />
                         <Box pos="absolute" top="8%" left="4%" right="5%">
                             <HStack gap="30px">
-                                <Image src={imageUrl} alt={`Image for ${name}`} boxSize="170px" objectFit="cover" width="20%" />
+                                <Image src={imageUrl} alt={`Image for ${name}`} boxSize="170px" objectFit="cover" width="350px" />
                                 <Box textColor="white" textShadow="2px 2px #171923">
                                     <Text as="b" fontSize="5xl" >{name}</Text>
                                     <Text fontSize="lg">{date} • {start_time}-{end_time}</Text>
@@ -26,60 +60,166 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
                 )}
             </VStack>
             {/* seatpicker */}
-            <Box alignContent="center" justifyContent="center" textAlign="center">
+            <Box>
                 <Grid
                     h='713px'
                     templateColumns='repeat(11, 1fr)'
                     templateRows='repeat(15,1fr)'
+                    justifyContent="center"
+                    alignContent="center"
+                    textAlign="center"
                 >
+                    {/* seatpicker */}
                     <GridItem
                         colSpan={8}
                         rowSpan={15}
-                        bg='palevioletred'
                         justifyContent="center"
-                    // alignContent="center"
+                        alignContent="center"
+                        borderWidth="1px"
+                        overflow="auto"
                     >
                         <SeatPicker
                             user_id={userId}
                             event_id={id}
-                            updateTotal={updateTotal}
+                            updateTotal={ticketTotal}
+                            updateSeats={seatsSelected}
                         />
                     </GridItem>
+                    {/* tickets text */}
                     <GridItem
                         colSpan={3}
                         rowSpan={1}
-                        bg="peachpuff"
                         justifyContent="center"
-                    // alignContent="center"
+                        alignContent="center"
+                        borderWidth="1px"
                     >
-                        <Box 
-                            // bgColor="palegoldenrod" 
-                            paddingTop="10px" 
-                            // paddingBottom="10px" 
-                            // borderWidth="2px"
-                            // borderColor="gray.300"
-                            // bgColor="gray.200"
-                        >
+                        <Box>
                             <Text as='b' fontSize="xl">Tickets</Text>
                         </Box>
                     </GridItem>
+                    {/* tickets that user selected  */}
                     <GridItem
                         colSpan={3}
-                        rowSpan={13}
-                        bg="paleturquoise"
+                        rowSpan={11}
+                        borderWidth="1px"
+                        justifyContent="center"
+                        alignContent="center"
+                        paddingLeft="8%"
+                        paddingRight="8%"
+                        overflow="scroll"
                     >
-
+                        {selectedSeats && selectedSeats.length > 0 ? (
+                            <Box >
+                                <SimpleGrid spacing={3}>
+                                    {selectedSeats.map(seat => {
+                                        const seatInfo = separateSeatInfo(seat);
+                                        return (
+                                            ticketCard(seat, seatInfo.rowName, seatInfo.seatNum, seatInfo.cost)
+                                        );
+                                    })}
+                                </SimpleGrid>
+                            </Box>
+                        ) : (
+                            <Text fontSize="xl">No Tickets Selected...</Text>
+                        )}
                     </GridItem>
+                    {/* total and checkout */}
                     <GridItem
                         colSpan={3}
-                        rowSpan={1}
-                        bg="plum"
+                        rowSpan={3}
+                        borderWidth="1px"
+                        justifyContent="center"
+                        alignContent="center"
+                        paddingLeft="8%"
+                        paddingRight="8%"
                     >
-
+                        <Flex>
+                            <Box>
+                                <Text as="b" fontSize="xl">SUBTOTAL:</Text>
+                            </Box>
+                            <Spacer />
+                            <Box>
+                                <Text as="b" fontSize="xl">${total}</Text>
+                            </Box>
+                        </Flex>
+                        {selectedSeats.length > 0? 
+                            <Text textAlign="left">{selectedSeats.length} Ticket{selectedSeats.length > 1? 's': ''}</Text> :
+                            null
+                        }
+                        {/* <Text textAlign="left" >1 Ticket</Text> */}
+                        <Box paddingTop="10px">
+                            <Button width="full" onClick={onOpen}>
+                                Checkout
+                            </Button>
+                            <Modal isOpen={isOpen} onClose={onClose}>
+                                <ModalOverlay>
+                                    <ModalContent>
+                                        <ModalHeader>Checkout</ModalHeader>
+                                        <ModalCloseButton />
+                                        <ModalBody>
+                                            <PaymentForm
+                                                totalAmount={Number(total)}
+                                                eventId={id}
+                                                userId={userId}
+                                            />
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button colorScheme='blue' mr={3} onClick={onClose}>
+                                                Close
+                                            </Button>
+                                        </ModalFooter>
+                                    </ModalContent>
+                                </ModalOverlay>
+                            </Modal>
+                        </Box>
                     </GridItem>
                 </Grid>
             </Box>
-        </div>
+        </>
+    );
+}
+
+function separateSeatInfo(seat) {
+    const cost = seat.split("$")[1];
+    const match = seat.match(/([A-Za-z]+)(\d+)/);
+    if (match) {
+        const [_, row, seat] = match;
+        return { rowName: row, seatNum: seat, cost: cost };
+    } else {
+        return null;
+    }
+}
+
+const ticketCard = (key, row, seat, cost) => {
+    return (
+        <Card
+            key={key}
+            height="100px"
+            justifyContent="center"
+            alignContent="center"
+            paddingLeft="8%"
+            paddingRight="8%"
+            borderWidth="2px"
+        >
+            <Flex>
+                <Box>
+                    <Text>ROW</Text>
+                    <Text as="b" fontSize="3xl">{row}</Text>
+                </Box>
+                <Spacer />
+                <Box>
+                    <Text>SEAT</Text>
+                    <Text as="b" fontSize="3xl">{seat}</Text>
+                </Box>
+                <Spacer />
+                <Divider orientation='vertical' />
+                <Spacer />
+                <Box>
+                    <Text>COST</Text>
+                    <Text as="b" fontSize="3xl">${cost}</Text>
+                </Box>
+            </Flex>
+        </Card>
     );
 }
 
