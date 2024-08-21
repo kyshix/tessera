@@ -258,6 +258,7 @@ def login_user():
 
 # Removes cookie to log out of account
 @app.route("/logout", methods=["POST"])
+
 def logout():
     resp = jsonify({"logout": True})
     unset_jwt_cookies(resp)
@@ -688,16 +689,16 @@ def create_tickets():
     row_name = request.json.get("row_name")
     seat_number = request.json.get("seat_number")
     event_id = request.json.get("event_id")
-    pricecode = request.json.get("pricecode")
+    price_id = request.json.get("price_id")
     status = "AVAILABLE"
     
-    if (not row_name or not seat_number or not event_id or not pricecode):
+    if (not row_name or not seat_number or not event_id or not price_id):
         return jsonify("All fields are required"), 400
     
     try: 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO Tickets(row_name, seat_number, event_id, status, pricecode) VALUES (?,?,?,?,?)",(row_name, seat_number, event_id, status, pricecode,),)
+        cursor.execute("INSERT INTO Tickets(row_name, seat_number, event_id, status, price_id) VALUES (?,?,?,?,?)",(row_name, seat_number, event_id, status, price_id,),)
         conn.commit()
         conn.close()
         return jsonify({"message" : "Ticket created successfully"}), 200
@@ -715,8 +716,7 @@ def get_all_tickets(event_id):
         
         conn = get_db_connection()
         cursor = conn.cursor()
-        # SELECT row_name, seat_number, value FROM Tickets JOIN Prices ON Tickets.pricecode = Prices.pricecode AND Tickets.event_id = Prices.event_id
-        cursor.execute("SELECT row_name, seat_number, status, value FROM Tickets JOIN Prices ON Tickets.pricecode = Prices.pricecode AND Tickets.event_id = Prices.event_id WHERE Tickets.event_id=?", (event_id,),)
+        cursor.execute("SELECT row_name, seat_number, status, value FROM Tickets JOIN Prices ON Tickets.price_id = Prices.price_id AND Tickets.event_id = Prices.event_id WHERE Tickets.event_id=?", (event_id,),)
         tickets = cursor.fetchall()
         ticket_list = [dict(ticket) for ticket in tickets]
         conn.close()
@@ -731,7 +731,7 @@ def get_user_tickets(user_id):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT row_name, seat_number, event_id, purchase_date, pricecode FROM Tickets WHERE user_id = ?", (user_id))
+        cursor.execute("SELECT row_name, seat_number, Tickets.event_id, purchase_date, value FROM Tickets JOIN  Prices ON Tickets.price_id=Prices.price_id WHERE user_id = ? AND status = 'SOLD'", (user_id))
         tickets = cursor.fetchall()
         
         if tickets: 
@@ -816,10 +816,10 @@ def unreserve_tickets():
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
 
-def countdown():
-    time.sleep(5)
-    print("Time up. Unreserving ticket")
-    unreserve_tickets()
+# def countdown():
+#     time.sleep(5)
+#     print("Time up. Unreserving ticket")
+#     unreserve_tickets()
 
 # create param conditions for this
 @app.route("/total_price/<event_id>/<user_id>", methods=["GET"])
@@ -831,7 +831,7 @@ def get_total_price(event_id, user_id):
         conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute("SELECT sum(value) AS total FROM Tickets JOIN Prices ON Tickets.pricecode = Prices.pricecode AND Tickets.event_id = Prices.event_id WHERE Tickets.event_id=? AND user_id=? AND status='RESERVED'", (event_id, user_id,),)
+        cursor.execute("SELECT sum(value) AS total FROM Tickets JOIN Prices ON Tickets.price_id = Prices.price_id AND Tickets.event_id = Prices.event_id WHERE Tickets.event_id=? AND user_id=? AND status='RESERVED'", (event_id, user_id,),)
         total = cursor.fetchone()
         conn.close()
         return jsonify({
@@ -839,6 +839,34 @@ def get_total_price(event_id, user_id):
         }), 200
     except Exception as e: 
         return jsonify({"error" : str(e)}), 500
+    
+@app.route("/ticket/user/upcoming_event", methods=["GET"])
+@jwt_required()
+def get_upcoming_event():
+    jwt = get_jwt()
+    user_id = jwt["sub"]["user_id"]
+    
+    try: 
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM Tickets JOIN Events ON Tickets.event_id = Events.event_id WHERE Events.date >= DATE('now') AND  Tickets.user_id = ? ORDER BY Events.date DESC LIMIT 1", (user_id,),)
+        # details = cursor.fetchall()
+        # if details is None:
+        #     return jsonify({"error": "User not found"}), 404
+
+        # acc_info_list = [dict(detail) for detail in details]
+        # conn.close()
+        # return jsonify(acc_info_list), 200
+        
+        ticket = cursor.fetchall()
+        conn.close()
+        if ticket is None: 
+            return jsonify({"error" : "No upcoming event"}), 401
+        ticket_info = [dict(ticket_detail) for ticket_detail in ticket]
+        return ticket_info, 200
+    except Exception as e: 
+        return jsonify({"error" : str(e)}), 500
+    
     
 def send_ticket_confirmation_email(to_email, seats, event_info):
     # Gmail account credentials

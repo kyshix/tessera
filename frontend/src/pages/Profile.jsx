@@ -1,48 +1,44 @@
 import React from 'react';
-import { Card, Box, CardHeader, Heading, Grid, GridItem, Container, Text, HStack, VStack, CardBody } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import { Card, Box, CardHeader, Heading, Grid, GridItem, Container, Text, HStack, VStack, CardBody, TabList, Tabs, Tab, TabPanels, TabPanel, useColorModeValue } from '@chakra-ui/react';
 import UserProfile from '../components/UserProfile';
+import UpcomingEvent from '../components/UpcomingEventPurchased';
 
 function Profile() {
-    return (
-        <Box
-            // bg="purple.500"
-            h="90vh">
-            <Container
-                maxW="container.xl"
-                // bgColor="pink.500"
-                h="100%">
-                <VStack
-                    gap='1em'>
-                    <Box 
-                        // bg="yellow.500"
-                        w="100%"> 
-                        <Text as='b' fontSize="4xl">Dashboard</Text>
-                    </Box>
-                    <HStack 
-                        w="100%">
-                        <UserProfile />
+    const color = useColorModeValue('gray.200', 'gray.700')
+    const flip = useColorModeValue('black', 'white')
 
-                        {/* Overview of tickets aka upcoming event that the user has tickets to attend || link to /profile/tickets
-                        or no events and link back to /events 
+    return (
+        <Container maxW="container.xl" centerContent>
+        <Box minWidth="80vw">
+            <Tabs variant='enclosed' ml='20px' mr='20px'>
+                <TabList>
+                    <Tab _selected={{ bg: color, color: flip }} fontWeight='bold'>
+                        Dashboard
+                    </Tab>
+                    <Tab _selected={{ bg: color, color: flip }} fontWeight='bold'>
+                        Update Profile
+                    </Tab>
+                    <Tab _selected={{ bg: color, color: flip }} fontWeight='bold'>
+                        Change Password
+                    </Tab>
+                    {/* <Tab _selected={{ bg: color, color: flip }} fontWeight='bold'>
+                        User Tickets
+                    </Tab> */}
+                </TabList>
+
+                <TabPanels>
+                    <TabPanel>
+                        <HStack>
+                            <UserProfile/>
+                            <UpcomingEvent/>
+                        </HStack>
                         
-                        Create new component for this not sure what to name it yet and no info for it bc tickets need to be completed*/}
-                        <>
-                            <Card 
-                                // bg="orange.500"
-                            >
-                                    <CardHeader>
-                                        <Heading size="md">Upcoming Event You're Attending</Heading>
-                                    </CardHeader>
-                                    <CardBody> 
-                                        <Text>No upcoming events...</Text>
-                                        <Text>Shop for your next memory!</Text>
-                                    </CardBody>
-                            </Card>
-                        </>
-                    </HStack>
-                </VStack>
-            </Container>
+                    </TabPanel>
+                </TabPanels>
+            </Tabs>
         </Box>
+        </Container>
     );
 }
 

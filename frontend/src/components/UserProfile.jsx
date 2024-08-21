@@ -1,5 +1,5 @@
 import React from 'react';
-import {Table, TableContainer, Tbody, Tr, Td, Card, CardBody, CardHeader, Divider, Text, Heading, Avatar, VStack, Button, Flex } from '@chakra-ui/react';
+import {Table, TableContainer, Tbody, Tr, Td, Card, CardBody, CardHeader, Divider, Text, Heading, Avatar, VStack, Button, Box } from '@chakra-ui/react';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -12,10 +12,23 @@ function UserProfile() {
             .catch(error => console.error('Error fetching user information:', error));
     }, []);
 
+    // const logout = async () => {
+    //     fetch(`http://localhost:5000/logout`, )
+    // }
+    // const checkUser = async () => {
+    //     fetch(`http://localhost:5000/user/current`, { credentials: 'include' })
+    //       .then(response => {
+    //         if (!response.ok) {
+    //           navigate('/login');
+    //         } else {
+    //           navigate('/profile');
+    //         }
+    //       });
+    //   };
     return (
-        <Card>
+        <Card minW="450px" maxW="40vw" minH="70vh" textAlign="center" justifyContent="center" alignContent="center">
             <CardHeader>
-                <Heading size="md"> 
+                <Heading size="xl" mt="10px"> 
                     Account Overview
                 </Heading>
             </CardHeader>
@@ -45,7 +58,7 @@ function UserProfile() {
                     </TableContainer>
                     {/* <Text textAlign="left" color="gray.500">Email</Text>
                                     <Text>{user.email}</Text> */}
-                    <Button as={Link} to={`/profile/update/${user.user_id}`}>Edit Profile</Button>
+                    <Button mt="30px" textColor="red.500">Log out</Button>
                     
                 </VStack>
             </CardBody>

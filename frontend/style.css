@@ -1,6 +1,6 @@
 .seat {
-    width: 50px !important;
-    height: 50px !important;
+    width: 60px !important;
+    height: 60px !important;
 }
 
 .seat-picker__row--selected {
@@ -25,3 +25,52 @@
     /* color should work on both light and dark mode hmm */
     background-color:rgb(41, 33, 101) !important;
 }
+
+
+.ant-picker-outlined{
+    background: inherit !important;
+    border-color: inherit !important;
+    width: 100%;
+}
+
+.ant-picker-outlined:hover{
+    border-color: #CBD5E0 !important;
+}
+
+.ant-picker-outlined:focus-within{
+    border-color: rgba(255, 0, 0, 0) !important;
+    box-shadow: 0 0 0 2px #3182CE !important;
+    outline: 2px;
+}
+
+/* .ant-picker-outlined:focus{
+    border-color: #3182CE !important;
+} */
+
+.ant-picker .ant-picker-input >input {
+    font-size: 16px !important;
+}
+
+.ant-picker-input input::placeholder {
+    color: rgb(118, 118, 118)!important;
+}
+
+.css-18z7r7u{
+    height: 40px !important;
+}
+
+.ant-picker .ant-picker-input span.ant-picker-suffix,
+.ant-picker.ant-picker-range span.ant-picker-suffix {
+  margin-left: 10px !important;
+  margin-right: 10px !important;
+  order: -1 !important;
+  color : rgba(255, 0, 0, 0) !important;
+}
+
+.ant-picker-input>input::placeholder {
+    color: #718096 !important;
+ }
+
+/* .ant-picker-outlined {
+    border-width: 2px !important;
+} */

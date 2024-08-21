@@ -14,7 +14,6 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
         setSelectedSeats(value);
 
     };
-    // console.log(selectedSeats);
 
     const ticketTotal = async () => {
         try {
@@ -60,7 +59,7 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
                 )}
             </VStack>
             {/* seatpicker */}
-            <Box>
+            {/* <Box> */}
                 <Grid
                     h='713px'
                     templateColumns='repeat(11, 1fr)'
@@ -110,7 +109,7 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
                     >
                         {selectedSeats && selectedSeats.length > 0 ? (
                             <Box >
-                                <SimpleGrid spacing={3}>
+                                <SimpleGrid spacing={3} paddingTop="20px" paddingBottom="20px">
                                     {selectedSeats.map(seat => {
                                         const seatInfo = separateSeatInfo(seat);
                                         return (
@@ -174,7 +173,7 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
                         </Box>
                     </GridItem>
                 </Grid>
-            </Box>
+            {/* </Box> */}
         </>
     );
 }

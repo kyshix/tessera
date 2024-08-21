@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Stack, Box, Image, Flex, Text, Button, Spacer, DarkMode, Avatar, useColorModeValue, useColorMode, Menu, MenuButton, MenuList, MenuGroup, MenuItem, MenuDivider, MenuOptionGroup, MenuItemOption } from '@chakra-ui/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import ColorModeSwitch from "./ColorModeSwitch";
 
@@ -8,6 +8,18 @@ function Navbar() {
   const bg = useColorModeValue('blue.500', 'blue.400')
   const color = useColorModeValue('white', 'gray.800')
   const { colorMode, toggleColorMode } = useColorMode();
+  const navigate = useNavigate();
+
+  const checkUser = async () => {
+    fetch(`http://localhost:5000/user/current`, { credentials: 'include' })
+      .then(response => {
+        if (!response.ok) {
+          navigate('/login');
+        } else {
+          navigate('/profile');
+        }
+      });
+  };
 
   return (
     <Stack>
@@ -40,7 +52,7 @@ function Navbar() {
           <Menu>
             {/* if logged out take them to the login page */}
             {/* <MenuButton as={Link} to={`/login`}> */}
-              <Avatar size="md"  as={Link} to={`/login`}/>
+              <Avatar size="md"  onClick={checkUser}/>
             {/* </MenuButton> */}
             {/* only show the menu if you have cookie/are logged in */}
             {/* could i use a useeffect here check it the jwt token is valid from the backend

@@ -44,8 +44,11 @@ function LoginForm() {
             bgColor="#1A202CEF"
             rounded="lg"
             borderWidth="2px"
+            borderColor="gray.900"
             boxShadow="0 0 50px 10px #FEEBC8AF"
-            backdropFilter='blur(10px)'>
+            backdropFilter='blur(10px)'
+            textColor="white"
+            >
             <form>
                 <VStack width='95%'>
                     <Heading paddingTop="55px">

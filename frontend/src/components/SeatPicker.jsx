@@ -60,42 +60,34 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
 
   const addSeatCallback = async ({ row, number, id }, addCb) => {
     setLoading(true);
-    try {
-      fetch(`http://localhost:5000/inventory/reserve`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ row, number, event_id, user_id })
-      })
-        .then(setSelected((prevItems) => [...prevItems, id]))
-        .then(() => updateTotal())
-        .then(addCb(row, number, id, 'Added to cart'))
-    } catch (error) {
-      console.error('Error adding seat:', error);
-    } finally {
-      setLoading(false);
-    }
+    fetch(`http://localhost:5000/inventory/reserve`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ row, number, event_id, user_id })
+    })
+      .then(setSelected((prevItems) => [...prevItems, id]))
+      .then(() => updateTotal())
+      .then(addCb(row, number, id, 'Added to cart'))
+      .then(setLoading(false))
+      .catch(error => console.error('Error unreserving ticket:', error));
   };
 
   const removeSeatCallback = async ({ row, number, id }, removeCb) => {
     setLoading(true);
-    try {
-      fetch(`http://localhost:5000/inventory/unreserve`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ row, number, event_id, user_id })
-      })
-        .then(setSelected((list) => list.filter((item) => item !== id)))
-        .then(() => updateTotal())
-        .then(removeCb(row, number))
-    } catch (error) {
-      console.error('Error removing seat:', error);
-    } finally {
-      setLoading(false);
-    }
+    fetch(`http://localhost:5000/inventory/unreserve`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ row, number, event_id, user_id })
+    })
+      .then(setSelected((list) => list.filter((item) => item !== id)))
+      .then(() => updateTotal())
+      .then(removeCb(row, number))
+      .then(setLoading(false))
+      .catch(error => console.error('Error unreserving ticket:', error));
   };
 
   return (
@@ -107,7 +99,7 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
           addSeatCallback={addSeatCallback}
           removeSeatCallback={removeSeatCallback}
           rows={rowsMap}
-          maxReservableSeats={3}
+          maxReservableSeats={5}
           alpha
           visible
           loading={loading}
