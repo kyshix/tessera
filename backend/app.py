@@ -35,11 +35,11 @@ app = Flask(
 CORS(app, supports_credentials=True)
 # https://flask-jwt-extended.readthedocs.io/en/3.0.0_release/tokens_in_cookies/
 app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
-app.config["JWT_SECRET_KEY"] = "hello-world"  # Change this!
+app.config["JWT_SECRET_KEY"] = "PLACEHOLDER"  # Change this!
 jwt = JWTManager(app)
 
 # Get your key from your dashboard
-stripe.api_key = 'sk_test_51PlwDkRwH17n1GPu2PGSzbc7mcmM6ezFGNDaZ2q3y13yJZ7YyBDDtFINndlIvvdH2ijVMMAxyklUl6IvZHf8Xjyp00c85puPcP'
+stripe.api_key = 'PLACEHOLDER'
 
 # Returns a connection to the database which can be used to send SQL commands to the database
 def get_db_connection():
