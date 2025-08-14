@@ -18,7 +18,7 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
 
     const ticketTotal = async () => {
         try {
-            fetch(`http://${BEBASEURL}:5000/total_price/${id}/${userId}`, {
+            fetch(`${BEBASEURL}/total_price/${id}/${userId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

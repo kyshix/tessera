@@ -19,7 +19,7 @@ function LoginForm() {
     const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
     async function fetchPostLogin() {
-        const response = await fetch(`http://${BEBASEURL}/login`, {
+        const response = await fetch(`${BEBASEURL}/login`, {
             method: 'POST',
             credentials: 'include',
             headers: {

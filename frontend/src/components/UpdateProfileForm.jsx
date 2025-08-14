@@ -13,7 +13,7 @@ function UpdateProfileForm(user_id) {
     const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
     async function fetchUpdateUsernameEmail() {
-        const response = await fetch(`http://${BEBASEURL}/user/update/${user_id}`, {
+        const response = await fetch(`${BEBASEURL}/user/update/${user_id}`, {
             method: 'PUT',
             credentials: 'include',
             headers: {

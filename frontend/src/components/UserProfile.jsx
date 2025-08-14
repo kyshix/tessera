@@ -8,17 +8,17 @@ function UserProfile() {
     const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
     useEffect(() => {
-        fetch(`http://${BEBASEURL}/profile`, { credentials: 'include' })
+        fetch(`${BEBASEURL}/profile`, { credentials: 'include' })
             .then(response => response.json())
             .then(data => setUser(data[0]))
             .catch(error => console.error('Error fetching user information:', error));
     }, []);
 
     const logout = async () => {
-        fetch(`http://${BEBASEURL}/logout`, )
+        fetch(`${BEBASEURL}/logout`, )
     }
     const checkUser = async () => {
-        fetch(`http://${BEBASEURL}/user/current`, { credentials: 'include' })
+        fetch(`${BEBASEURL}/user/current`, { credentials: 'include' })
           .then(response => {
             if (!response.ok) {
               navigate('/login');

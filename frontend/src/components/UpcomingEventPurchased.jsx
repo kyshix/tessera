@@ -7,7 +7,7 @@ function UpcomingEventPurchased(key){
     const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
     
     useEffect(() => {
-        fetch(`http://${BEBASEURL}/ticket/user/upcoming_event`, {credentials: 'include'})
+        fetch(`${BEBASEURL}/ticket/user/upcoming_event`, {credentials: 'include'})
         .then(response => response.json())
         .then(data => setTicket(data[0]))
         .catch(error => console.error('Error fetching upcoming ticket:', error));

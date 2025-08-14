@@ -13,14 +13,14 @@ function EventDetail() {
   const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
   useEffect(() => {
-    fetch(`http://${BEBASEURL}/events/${id}`)
+    fetch(`${BEBASEURL}/events/${id}`)
       .then(response => response.json())
       .then(data => setEvent(data))
       .catch(error => console.error('Error fetching event details:', error));
   }, []);
 
   useEffect(() => {
-    fetch(`http://${BEBASEURL}/user/current`, { credentials: 'include' })
+    fetch(`${BEBASEURL}/user/current`, { credentials: 'include' })
       .then(response => {
         if (!response.ok) {
           navigate('/login');

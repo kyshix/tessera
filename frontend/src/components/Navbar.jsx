@@ -9,9 +9,10 @@ function Navbar() {
   const color = useColorModeValue('white', 'gray.800')
   const { colorMode, toggleColorMode } = useColorMode();
   const navigate = useNavigate();
+  const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
   const checkUser = async () => {
-    fetch(`http://localhost:5000/user/current`, { credentials: 'include' })
+    fetch(`${BEBASEURL}/user/current`, { credentials: 'include' })
       .then(response => {
         if (!response.ok) {
           navigate('/login');

@@ -22,7 +22,7 @@ const CheckoutForm = ({ totalAmount, eventId, userId}) => {
     const cardElement = elements.getElement(CardElement);
     const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
-    const response = await fetch(`http://${BEBASEURL}/create-payment-intent`, {
+    const response = await fetch(`${BEBASEURL}/create-payment-intent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ const CheckoutForm = ({ totalAmount, eventId, userId}) => {
   const purchaseTickets = async () => {
     const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
     
-    const response = await fetch(`http://${BEBASEURL}/inventory/buy`,{
+    const response = await fetch(`${BEBASEURL}/inventory/buy`,{
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
