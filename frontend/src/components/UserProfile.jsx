@@ -5,26 +5,29 @@ import { Link } from 'react-router-dom';
 
 function UserProfile() {
     const [user, setUser] = useState([""]);
+    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
+
     useEffect(() => {
-        fetch(`http://localhost:5000/profile`, { credentials: 'include' })
+        fetch(`http://${BEBASEURL}/profile`, { credentials: 'include' })
             .then(response => response.json())
             .then(data => setUser(data[0]))
             .catch(error => console.error('Error fetching user information:', error));
     }, []);
 
-    // const logout = async () => {
-    //     fetch(`http://localhost:5000/logout`, )
-    // }
-    // const checkUser = async () => {
-    //     fetch(`http://localhost:5000/user/current`, { credentials: 'include' })
-    //       .then(response => {
-    //         if (!response.ok) {
-    //           navigate('/login');
-    //         } else {
-    //           navigate('/profile');
-    //         }
-    //       });
-    //   };
+    const logout = async () => {
+        fetch(`http://${BEBASEURL}/logout`, )
+    }
+    const checkUser = async () => {
+        fetch(`http://${BEBASEURL}/user/current`, { credentials: 'include' })
+          .then(response => {
+            if (!response.ok) {
+              navigate('/login');
+            } else {
+              navigate('/profile');
+            }
+          });
+      };
+
     return (
         <Card minW="450px" maxW="40vw" minH="70vh" textAlign="center" justifyContent="center" alignContent="center">
             <CardHeader>

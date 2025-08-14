@@ -8,6 +8,7 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
   const [rowsMap, setRowsMap] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
+  const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
   useEffect(() => {
     updateSeats(selected)
@@ -16,7 +17,7 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/inventory/prices/event/${event_id}`, {
+        const response = await fetch(`http://${BEBASEURL}/inventory/prices/event/${event_id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -60,7 +61,7 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
 
   const addSeatCallback = async ({ row, number, id }, addCb) => {
     setLoading(true);
-    fetch(`http://localhost:5000/inventory/reserve`, {
+    fetch(`http://${BEBASEURL}/inventory/reserve`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -76,7 +77,7 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
 
   const removeSeatCallback = async ({ row, number, id }, removeCb) => {
     setLoading(true);
-    fetch(`http://localhost:5000/inventory/unreserve`, {
+    fetch(`http://${BEBASEURL}/inventory/unreserve`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

@@ -6,13 +6,14 @@ import {
 } from '@chakra-ui/react';
 
 function UpdateProfileForm(user_id) {
-    console.log(user_id);
+    // console.log(user_id);
     const [new_username, setUsername] = useState('');
     const [new_email, setEmail] = useState('');
     const [isInvalid, setIsInvalid] = useState(null);
-    
+    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
+
     async function fetchUpdateUsernameEmail() {
-        const response = await fetch(`http://localhost:5000/user/update/${user_id}`, {
+        const response = await fetch(`http://${BEBASEURL}/user/update/${user_id}`, {
             method: 'PUT',
             credentials: 'include',
             headers: {

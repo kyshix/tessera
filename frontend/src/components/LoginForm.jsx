@@ -16,9 +16,10 @@ function LoginForm() {
 
     const handleShowClick = () => setShowPassword(!showPassword);
     const navigate = useNavigate();
+    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
     async function fetchPostLogin() {
-        const response = await fetch(`http://localhost:5000/login`, {
+        const response = await fetch(`http://${BEBASEURL}/login`, {
             method: 'POST',
             credentials: 'include',
             headers: {

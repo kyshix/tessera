@@ -4,8 +4,10 @@ import { Card, Image, Box, CardHeader, Heading, Grid, GridItem, Container, Text,
 
 function UpcomingEventPurchased(key){
     const [ticket, setTicket] = useState(null);
+    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
+    
     useEffect(() => {
-        fetch('http://localhost:5000/ticket/user/upcoming_event', {credentials: 'include'})
+        fetch(`http://${BEBASEURL}/ticket/user/upcoming_event`, {credentials: 'include'})
         .then(response => response.json())
         .then(data => setTicket(data[0]))
         .catch(error => console.error('Error fetching upcoming ticket:', error));

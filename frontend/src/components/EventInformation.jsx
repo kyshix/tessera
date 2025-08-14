@@ -9,6 +9,7 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
     const [selectedSeats, setSelectedSeats] = useState([]);
     const { isOpen, onOpen, onClose } = useDisclosure();
     const navigate = useNavigate();
+    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
     const seatsSelected = (value) => {
         setSelectedSeats(value);
@@ -17,7 +18,7 @@ function EventInformation({ id, name, date, start_time, end_time, location, desc
 
     const ticketTotal = async () => {
         try {
-            fetch(`http://localhost:5000/total_price/${id}/${userId}`, {
+            fetch(`http://${BEBASEURL}:5000/total_price/${id}/${userId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

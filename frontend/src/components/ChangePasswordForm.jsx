@@ -14,8 +14,10 @@ function UpdateProfileForm(user_id) {
     const [new_password, setNewPassword] = useState('');
     const [verify_password, setVerifyPassword] = useState('');
 
+    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
+
     async function fetchChangePassword() {
-        const response = await fetch(`http://localhost:5000/user/change_password/${user_id}`, {
+        const response = await fetch(`http://${BEBASEURL}/user/change_password/${user_id}`, {
             method: 'PUT',
             credentials: 'include',
             headers: {
