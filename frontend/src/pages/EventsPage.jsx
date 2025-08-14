@@ -30,7 +30,7 @@ function EventsPage() {
     const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
 
     useEffect(() => {
-        fetch(`https://${BEBASEURL}/events?afterDate=${startDate}${endDate? `&beforeDate=${endDate}` : ''}`)
+        fetch(`${BEBASEURL}/events?afterDate=${startDate}${endDate? `&beforeDate=${endDate}` : ''}`)
             .then(response => response.json())
             .then(setEvents)
             .catch(error => console.error('Error fetching events:', error));
