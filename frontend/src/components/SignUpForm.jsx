@@ -17,10 +17,10 @@ function SignUpForm() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [avatar_url, setPicUrl] = useState('')
     const [isInvalid, setIsInvalid] = useState(false);
-    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
+    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL.replace(/^http:\/\/|^https:\/\//, 'https://')
 
     async function fetchSignUp() {
-        const response = await fetch(`http://${BEBASEURL}/user`, {
+        const response = await fetch(`${BEBASEURL}/user`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
