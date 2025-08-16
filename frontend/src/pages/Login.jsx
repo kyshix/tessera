@@ -6,7 +6,7 @@ function Login() {
     <div>
       <Box>
         <Grid
-          backgroundImage="url('/frontend/images/loginConcert.png')"
+          backgroundImage="url('https://web.archive.org/web/20241001123230/https://azbigmedia.com/wp-content/uploads/2020/03/concert-tips.png')"
           backgroundPosition="center"
           backgroundRepeat="no-repeat"
           backgroundSize="cover"

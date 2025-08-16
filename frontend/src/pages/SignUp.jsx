@@ -5,7 +5,7 @@ function Signup() {
     return(
         <Box>
             <Grid
-                backgroundImage="url('https://azbigmedia.com/wp-content/uploads/2020/03/concert-tips.png')"
+                backgroundImage="url('https://web.archive.org/web/20241001123230/https://azbigmedia.com/wp-content/uploads/2020/03/concert-tips.png')"
                 backgroundPosition="center"
                 backgroundRepeat="no-repeat"
                 backgroundSize="cover"
