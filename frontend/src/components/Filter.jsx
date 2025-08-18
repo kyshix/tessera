@@ -9,7 +9,6 @@ import "../../style.css"
 function Filter({ sendDatesFilter, sendLocationFilter, sendSearchFilter}) {
     const { RangePicker } = DatePicker;
 
-    
     function dateChange(date, dateString) {
         sendDatesFilter(dateString);
     }
@@ -27,6 +26,7 @@ function Filter({ sendDatesFilter, sendLocationFilter, sendSearchFilter}) {
 
     return (
         <HStack>
+            {/* category of event */}
             <FormControl>
                 <Select 
                     placeholder='Select category'
@@ -37,6 +37,8 @@ function Filter({ sendDatesFilter, sendLocationFilter, sendSearchFilter}) {
                     <option>Games</option>
                 </Select>
             </FormControl>
+            
+            {/* location */}
             <InputGroup>
                 <InputLeftElement
                     pointerEvents="none"
@@ -49,7 +51,7 @@ function Filter({ sendDatesFilter, sendLocationFilter, sendSearchFilter}) {
                 <Input
                     width="full"
                     type="event name"
-                    placeholder="City or Zip Code"
+                    placeholder="Venue"
                     onBlur={(e) => locationChange(e.target.value)}
                 />
                 <InputRightElement 
@@ -64,6 +66,8 @@ function Filter({ sendDatesFilter, sendLocationFilter, sendSearchFilter}) {
                     }
                 />
             </InputGroup>
+            
+            {/* date */}
             <InputGroup>
                 <InputLeftElement
                     pointerEvents="none"
@@ -80,6 +84,8 @@ function Filter({ sendDatesFilter, sendLocationFilter, sendSearchFilter}) {
                     size="large"
                 />
             </InputGroup>
+
+            {/* search */}
             <InputGroup>
                 <InputLeftElement
                     pointerEvents="none"
