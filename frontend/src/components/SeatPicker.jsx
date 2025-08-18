@@ -17,7 +17,7 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`http://${BEBASEURL}/inventory/prices/event/${event_id}`, {
+        const response = await fetch(`${BEBASEURL}/inventory/prices/event/${event_id}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
 
   const addSeatCallback = async ({ row, number, id }, addCb) => {
     setLoading(true);
-    fetch(`http://${BEBASEURL}/inventory/reserve`, {
+    fetch(`${BEBASEURL}/inventory/reserve`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ function SeatPicker({ user_id, event_id, updateTotal, updateSeats }) {
 
   const removeSeatCallback = async ({ row, number, id }, removeCb) => {
     setLoading(true);
-    fetch(`http://${BEBASEURL}/inventory/unreserve`, {
+    fetch(`${BEBASEURL}/inventory/unreserve`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',

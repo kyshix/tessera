@@ -12,6 +12,7 @@ function EventsPage() {
 
     const [datesFilter, setDatesFilter] = useState([]);
     function handleDatesFilter(dates) {
+        console.log(dates);
         setDatesFilter(dates);
     }
     const startDate = (datesFilter === undefined || datesFilter.length == 0) ? today.toISOString().split('T')[0] : datesFilter[0];
@@ -19,11 +20,13 @@ function EventsPage() {
 
     const [search, setSearch] = useState(null);
     function handleSearchFilter(search){
+        console.log(search);
         setSearch(search);
     }
 
     const [location, setLocation] = useState(null);
     function handleLocationFilter(location){
+        console.log(location);
         setLocation(location);
     }
 
