@@ -117,6 +117,11 @@ def get_events():
         query_conditions.append("location = ?")
         params.append(location)
 
+    name = request.args.get("name")
+    if name:
+        query_conditions.append("name = ?")
+        params.append(name)
+
     # Add WHERE clause if conditions are present
     if query_conditions:
         query += " WHERE " + " AND ".join(query_conditions)
@@ -245,7 +250,7 @@ def login_user():
         conn.close()
 
         access_token = create_access_token(
-            identity=identifiers_dict, expires_delta=(timedelta(days=2))
+            identity=str(identifiers_dict), expires_delta=(timedelta(days=2))
         )
         resp = jsonify({"message": "User Successfully Logged In"})
         set_access_cookies(resp, access_token)

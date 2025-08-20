@@ -26,7 +26,7 @@ function Filter({ sendDatesFilter, sendLocationFilter, sendSearchFilter}) {
 
     return (
         <HStack>
-            {/* category of event */}
+            {/* category of event
             <FormControl>
                 <Select 
                     placeholder='Select category'
@@ -37,7 +37,9 @@ function Filter({ sendDatesFilter, sendLocationFilter, sendSearchFilter}) {
                     <option>Games</option>
                 </Select>
             </FormControl>
-            
+             */}
+
+             
             {/* location */}
             <InputGroup>
                 <InputLeftElement

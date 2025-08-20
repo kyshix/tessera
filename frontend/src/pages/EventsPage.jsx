@@ -6,10 +6,11 @@ import { Link } from 'react-router-dom';
 // import FilterBar from '../components/FilterBar';
 
 function EventsPage() {
+    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
     const [events, setEvents] = useState([]);
+    
     const today = new Date();
     today.setDate(today.getDate());
-
     const [datesFilter, setDatesFilter] = useState([]);
     function handleDatesFilter(dates) {
         console.log(dates);
@@ -30,10 +31,8 @@ function EventsPage() {
         setLocation(location);
     }
 
-    const BEBASEURL = import.meta.env.VITE_BACKEND_BASEURL
-
     useEffect(() => {
-        fetch(`${BEBASEURL}/events?afterDate=${startDate}${endDate? `&beforeDate=${endDate}` : ''}`)
+        fetch(`${BEBASEURL}/events?afterDate=${startDate}${endDate? `&beforeDate=${endDate}` : ''}${location? `&location=${location}` : ''}${search? `&name=${search}` : ''}`)
             .then(response => response.json())
             .then(setEvents)
             .catch(error => console.error('Error fetching events:', error));
